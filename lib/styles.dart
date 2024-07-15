@@ -58,7 +58,7 @@ class AppStyles {
 
   static final EdgeInsetsGeometry registerPagePadding = EdgeInsets.only(
     bottom: 60,
-    top: 100,
+    top: 120,
   );
 
   static final ButtonStyle elevatedButtonStyle = ElevatedButton.styleFrom(

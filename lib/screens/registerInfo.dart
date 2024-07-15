@@ -70,6 +70,7 @@ class _RegisterInfoState extends State<RegisterInfo> {
                   ),
                 ),
               ),
+              SizedBox(height: 30,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:lovigoapp/screens/registerLifeStyle.dart';
 
 import 'registerInfo.dart';
 import 'package:flutter/material.dart';
@@ -18,10 +19,10 @@ class _RegisterDistanceState extends State<RegisterDistance> {
   double _currentSliderValue=0;
   void _proceedAnotherPage() {
 
-   /* Navigator.push(
+    Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ()),
-    ); */
+      MaterialPageRoute(builder: (context) => RegisterLifeStyle()),
+    );
   }
   @override
   Widget build(BuildContext context) {
