@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lovigoapp/screens/registerGender.dart';
 import '../styles.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class RegisterInfo extends StatefulWidget {
   const RegisterInfo({super.key});
@@ -28,15 +27,16 @@ class _RegisterInfoState extends State<RegisterInfo> {
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+
             children: [
               Padding(
                 padding: AppStyles.registerPagePadding,
                 child: Text(
                   'Register Page',
-                  style: AppStyles.registerPageTitleStyle,
+                  style: AppStyles.textStyleTitle,
                 ),
               ),
+              SizedBox(height:20),
               _buildTextField(_nameController, 'Name'),
               SizedBox(height: 16),
               _buildTextField(_emailController, 'Email'),
@@ -49,7 +49,7 @@ class _RegisterInfoState extends State<RegisterInfo> {
               SizedBox(height: 16),
               _buildTextField(_confirmPasswordController, 'Confirm Password',
                   obscureText: true),
-              SizedBox(height: 36),
+              SizedBox(height: 43),
               ElevatedButton(
                 onPressed: () {
                   setState(() {
@@ -60,15 +60,8 @@ class _RegisterInfoState extends State<RegisterInfo> {
                         ));
                   });
                 },
-                child: Text('  Next  '),
-                style: ElevatedButton.styleFrom(
-                  padding:
-                  EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-                  textStyle: TextStyle(fontSize: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
+                child: Text(' Proceed ', style: AppStyles.textStyleForButton, ),
+                style: AppStyles.proceedButtonStyle,
               ),
               SizedBox(height: 30,),
               Row(

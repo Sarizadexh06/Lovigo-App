@@ -20,7 +20,7 @@ final BoxDecoration gradientDecoration = const BoxDecoration(
       Color.fromARGB(255, 237, 130, 247),
       Color.fromARGB(255, 242, 174, 174),
     ],
-    stops: [0.3, 1.0], // İlk renk için %30, ikinci renk için %100 stop değeri
+    stops: [0.3, 1.0],
   ),
 );
 
@@ -82,10 +82,7 @@ class AppStyles {
   );
   static final ButtonStyle proceedButtonStyle = ElevatedButton.styleFrom(
     foregroundColor: Color.fromARGB(255, 184, 62, 225), backgroundColor: Colors.white,
-    textStyle: GoogleFonts.greatVibes(
-      fontSize: 35,
-      fontWeight: FontWeight.bold,
-    ),
+    textStyle: TextStyle(fontSize: 30,color: Colors.deepPurpleAccent),
     minimumSize: Size(180, 50),
     padding: EdgeInsets.all(10),
     shape: RoundedRectangleBorder(
@@ -94,4 +91,70 @@ class AppStyles {
   );
 
 
+  static final TextStyle textStyleTitle = TextStyle(
+    fontSize: 40,color: Colors.white,
+    fontWeight: FontWeight.w700,
+    shadows: [
+    Shadow(
+    blurRadius: 10,
+    color: Color.fromARGB(255, 224, 112, 244).withOpacity(0.8),
+    offset: Offset(0, 5),
+  ),
+      Shadow(
+  blurRadius: 10,
+  color: Colors.blueAccent.withOpacity(0.8),
+  offset: Offset(0, 5),
+
+  )]);
+
+
+  static final TextStyle textStyleForButton = TextStyle(
+    fontWeight: FontWeight.w700,
+    fontSize: 27,
+  );
+
+}
+
+
+class CardWidget {
+  final String imageUrl;
+  final String name;
+  CardWidget(this.imageUrl, this.name);
+
+  Widget buildCard() {
+    return Container(
+      padding: EdgeInsets.only(top: 50),
+     width: 600,
+      child: Column(
+        children: [
+          Stack(
+            children: [
+      Card(
+      child: SizedBox(
+        width: 800,
+        height: 500,
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+        ),
+      ),
+    ),
+              Positioned(
+                bottom: 10,
+                left: 10,
+                child: Text(
+                  name,
+                  style: AppStyles.registerPageTitleStyle,
+                ),
+              ),
+    ]
+    ),
+
+      ]
+
+
+
+      ),
+    );
+  }
 }

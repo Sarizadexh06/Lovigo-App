@@ -32,12 +32,12 @@ class _RegisterDistanceState extends State<RegisterDistance> {
         height: double.infinity,
         decoration: gradientDecoration,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
             Padding(
               padding: EdgeInsets.only(top: 60,right: 1),
-              child: Text('Your distance \n preference?',style: AppStyles.registerPageTitleStyle,),),
+              child: Text('Your distance \n preference?',style: AppStyles.textStyleTitle,),),
 
             Padding(
                 padding: EdgeInsets.all(25),
@@ -84,7 +84,7 @@ class _RegisterDistanceState extends State<RegisterDistance> {
             ElevatedButton(
               onPressed: _proceedAnotherPage,
               style:AppStyles.proceedButtonStyle,
-              child: Text('Proceed'),
+              child: Text('Proceed',style: AppStyles.textStyleForButton,),
             )
           ],
         ),

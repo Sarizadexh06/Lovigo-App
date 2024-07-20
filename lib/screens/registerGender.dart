@@ -29,13 +29,13 @@ class _RegisterGenderState extends State<RegisterGender> {
         height: double.infinity,
         decoration: gradientDecoration,
         child: Column(
-
+     mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
               padding: AppStyles.registerPagePadding,
               child: Text(
                 'Register Gender',
-                style: AppStyles.registerPageTitleStyle,
+                style: AppStyles.textStyleTitle,
               ),
             ),
             SizedBox(height: 20),
@@ -85,7 +85,7 @@ class _RegisterGenderState extends State<RegisterGender> {
                 child: ElevatedButton(
                   style: AppStyles.proceedButtonStyle,
                   onPressed: _proceedToNextPage,
-                  child: Text('Proceed'),
+                  child: Text('Proceed',style: AppStyles.textStyleForButton,),
                 ),
               ),
           ],

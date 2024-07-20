@@ -4,6 +4,7 @@ import 'package:lovigoapp/screens/registerInfo.dart';
 import 'package:lovigoapp/screens/registerInterests.dart';
 import '../styles.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'userProfile.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -95,7 +96,9 @@ class _LoginPageState extends State<LoginPage> {
                         width: 180,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>UserProfile()));
+                          },
                           child: Text(
                             textForLogin,
                             style: GoogleFonts.greatVibes(

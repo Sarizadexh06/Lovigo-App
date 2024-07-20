@@ -1,7 +1,11 @@
+// lib/screens/registerLifeStyle.dart
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:lovigoapp/providers/habit_provider.dart';
 import 'package:lovigoapp/screens/registerInterests.dart';
 import 'package:lovigoapp/screens/registerLifeStyle2.dart';
+import 'package:provider/provider.dart';
 import '../styles.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -21,36 +25,40 @@ class _RegisterLifeStyleState extends State<RegisterLifeStyle> {
         height: double.infinity,
         decoration: gradientDecoration,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
-              padding: EdgeInsets.all(30),
+              padding: EdgeInsets.all(35),
               child: Text(
-                'Let\'s talk about Life Style',
-                style: AppStyles.registerPageTitleStyle,
+                'Let\'s talk about your life style',
+                textAlign: TextAlign.center,
+                style: AppStyles.textStyleTitle,
               ),
             ),
-            Divider(),
-
+         //  Divider(),
             Padding(
               padding: EdgeInsets.all(25),
-              child: buildSmokingCards(),
+              child: buildSmokingCards(context),
             ),
-            Divider(),
-            Divider(),
 
+            //Divider(),
             Padding(
               padding: EdgeInsets.all(25),
-              child: buildDrinkingCards(),
+              child: buildDrinkingCards(context),
             ),
-            Divider(),
-        SizedBox(height: 30,),
-          ElevatedButton(
-              onPressed: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>RegisterLifeStyle2()));
-              },
-              style: AppStyles.elevatedButtonStyle,
-          child: Text('Proceed'),)
-
+            //Divider(),
+            SizedBox(height: 30,),
+            SizedBox(
+              height: 50,
+            width: 180,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterLifeStyle2()));
+                },
+                style: AppStyles.proceedButtonStyle,
+                child: Text('Proceed', style: AppStyles.textStyleForButton),
+              ),
+            )
           ],
         ),
       ),
@@ -58,15 +66,15 @@ class _RegisterLifeStyleState extends State<RegisterLifeStyle> {
   }
 }
 
-Widget buildSmokingCards() {
+Widget buildSmokingCards(BuildContext context) {
   return Container(
     color: Colors.transparent,
-    child: CustomCard(),
+    child: CustomSmokingCard(),
   );
 }
 
-class CustomCard extends StatelessWidget {
-  const CustomCard({super.key});
+class CustomSmokingCard extends StatelessWidget {
+  const CustomSmokingCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +83,6 @@ class CustomCard extends StatelessWidget {
       "Non-Smoker",
       "Occasional Smoker",
       "Former Smoker",
-
     ];
 
     return Column(
@@ -89,27 +96,38 @@ class CustomCard extends StatelessWidget {
               SizedBox(width: 15,),
               Text(
                 "How often you smoke?",
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,color: Colors.white),
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
               ),
-          ]
+            ],
           ),
         ),
         Wrap(
-          spacing: 8.0, // Kartlar arasındaki yatay boşluk
-          runSpacing: 4.0, // Satırlar arasındaki dikey boşluk
+          spacing: 8.0,
+          runSpacing: 4.0,
           children: List.generate(
             smokingList.length,
                 (index) => InkWell(
               onTap: () {
-
+                Provider.of<HabitProvider>(context, listen: false).selectSmokingIndex(index);
               },
-              child: Card(
-                elevation: 4,
-                shadowColor: Colors.cyanAccent,
-                child: Padding(
-                  padding: EdgeInsets.all(13),
-                  child: Text(smokingList[index]),
-                ),
+              child: Consumer<HabitProvider>(
+                builder: (context, provider, child) {
+                  bool isSelected = provider.selectedSmokingIndex == index;
+                  return Card(
+                    elevation: 4,
+                    shadowColor: Colors.cyanAccent,
+                    color: isSelected ? Colors.deepPurpleAccent : Colors.white,
+                    child: Padding(
+                      padding: EdgeInsets.all(13),
+                      child: Text(
+                        smokingList[index],
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -119,8 +137,7 @@ class CustomCard extends StatelessWidget {
   }
 }
 
-
-Widget buildDrinkingCards() {
+Widget buildDrinkingCards(BuildContext context) {
   return Container(
     color: Colors.transparent,
     child: CustomDrinkingCard(),
@@ -138,38 +155,50 @@ class CustomDrinkingCard extends StatelessWidget {
       "On special occasions",
       "Most Nights"
     ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
-            children:[
-              Icon(Icons.local_drink_rounded, color: Colors.white,),
-              SizedBox(width: 15,),
-              Text(
-                "How often you drink?",
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,color: Colors.white),
-              ),
-          ]
+              children:[
+                Icon(Icons.local_drink_rounded, color: Colors.white,),
+                SizedBox(width: 15,),
+                Text(
+                  "How often you drink?",
+                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              ]
           ),
         ),
         Wrap(
-          spacing: 8.0, 
+          spacing: 8.0,
           runSpacing: 4.0,
           children: List.generate(
             drinkingList.length,
                 (index) => InkWell(
               onTap: () {
-
+                Provider.of<HabitProvider>(context, listen: false).selectDrinkingIndex(index);
               },
-              child: Card(
-                elevation: 4,
-                shadowColor: Colors.cyanAccent,
-                child: Padding(
-                  padding: EdgeInsets.all(13),
-                  child: Text(drinkingList[index]),
-                ),
+              child: Consumer<HabitProvider>(
+                builder: (context, provider, child) {
+                  bool isSelected = provider.selectedDrinkingIndex == index;
+                  return Card(
+                    elevation: 4,
+                    shadowColor: Colors.cyanAccent,
+                    color: isSelected ? Colors.deepPurpleAccent : Colors.white,
+                    child: Padding(
+                      padding: EdgeInsets.all(13),
+                      child: Text(
+                        drinkingList[index],
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),

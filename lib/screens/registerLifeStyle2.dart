@@ -1,8 +1,10 @@
+// lib/screens/registerLifeStyle2.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:lovigoapp/screens/registerInterests.dart';
+import 'package:provider/provider.dart';
+import 'package:lovigoapp/providers/habit_provider.dart';
+import 'package:lovigoapp/screens/registerZodiac.dart';
 import '../styles.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class RegisterLifeStyle2 extends StatefulWidget {
   const RegisterLifeStyle2({super.key});
@@ -20,36 +22,35 @@ class _RegisterLifeStyleState extends State<RegisterLifeStyle2> {
         height: double.infinity,
         decoration: gradientDecoration,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
               padding: EdgeInsets.all(30),
               child: Text(
                 'Let\'s talk about Life Style',
-                style: AppStyles.registerPageTitleStyle,
+                textAlign: TextAlign.center,
+                style: AppStyles.textStyleTitle,
               ),
             ),
             Divider(),
-
             Padding(
               padding: EdgeInsets.all(25),
-              child: buildWorkoutCards(),
+              child: buildWorkoutCards(context),
             ),
-
             Divider(),
-
             Padding(
               padding: EdgeInsets.all(25),
-              child: buildPetCards(),
+              child: buildPetCards(context),
             ),
             Divider(),
             SizedBox(height: 30,),
             ElevatedButton(
               onPressed: (){
-
+                Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterZodiac()));
               },
-              style: AppStyles.elevatedButtonStyle,
-              child: Text('Proceed'),)
-
+              style: AppStyles.proceedButtonStyle,
+              child: Text('Proceed',style: AppStyles.textStyleForButton,),
+            ),
           ],
         ),
       ),
@@ -57,15 +58,15 @@ class _RegisterLifeStyleState extends State<RegisterLifeStyle2> {
   }
 }
 
-Widget buildWorkoutCards() {
+Widget buildWorkoutCards(BuildContext context) {
   return Container(
     color: Colors.transparent,
-    child: CustomCard(),
+    child: CustomWorkoutCard(),
   );
 }
 
-class CustomCard extends StatelessWidget {
-  const CustomCard({super.key});
+class CustomWorkoutCard extends StatelessWidget {
+  const CustomWorkoutCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +75,6 @@ class CustomCard extends StatelessWidget {
       "Often",
       "Never",
       "Sometimes",
-
     ];
 
     return Column(
@@ -83,32 +83,43 @@ class CustomCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
-              children: [
-                Icon(Icons.fitness_center, color: Colors.white,),
-                SizedBox(width: 15,),
-                Text(
-                  "Do you workout?",
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,color: Colors.white),
-                ),
-              ]
+            children: [
+              Icon(Icons.fitness_center, color: Colors.white,),
+              SizedBox(width: 15,),
+              Text(
+                "Do you workout?",
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+            ],
           ),
         ),
         Wrap(
-          spacing: 8.0, // Kartlar arasındaki yatay boşluk
-          runSpacing: 4.0, // Satırlar arasındaki dikey boşluk
+          spacing: 8.0,
+          runSpacing: 4.0,
           children: List.generate(
             workoutList.length,
                 (index) => InkWell(
               onTap: () {
-
+                Provider.of<HabitProvider>(context, listen: false).selectWorkoutIndex(index);
               },
-              child: Card(
-                elevation: 4,
-                shadowColor: Colors.cyanAccent,
-                child: Padding(
-                  padding: EdgeInsets.all(13),
-                  child: Text(workoutList[index]),
-                ),
+              child: Consumer<HabitProvider>(
+                builder: (context, provider, child) {
+                  bool isSelected = provider.selectedWorkoutIndex == index;
+                  return Card(
+                    elevation: 4,
+                    shadowColor: Colors.cyanAccent,
+                    color: isSelected ? Colors.deepPurpleAccent : Colors.white,
+                    child: Padding(
+                      padding: EdgeInsets.all(13),
+                      child: Text(
+                        workoutList[index],
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -118,16 +129,15 @@ class CustomCard extends StatelessWidget {
   }
 }
 
-
-Widget buildPetCards() {
+Widget buildPetCards(BuildContext context) {
   return Container(
     color: Colors.transparent,
-    child: CustomDrinkingCard(),
+    child: CustomPetCard(),
   );
 }
 
-class CustomDrinkingCard extends StatelessWidget {
-  const CustomDrinkingCard({super.key});
+class CustomPetCard extends StatelessWidget {
+  const CustomPetCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -141,20 +151,21 @@ class CustomDrinkingCard extends StatelessWidget {
       "Don\'t have but love",
       "Pet-free"
     ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
-              children:[
-                Icon(Icons.pets_rounded, color: Colors.white,),
-                SizedBox(width: 15,),
-                Text(
-                  "Do you have  any pets?",
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,color: Colors.white),
-                ),
-              ]
+            children:[
+              Icon(Icons.pets_rounded, color: Colors.white,),
+              SizedBox(width: 15,),
+              Text(
+                "Do you have any pets?",
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+            ],
           ),
         ),
         Wrap(
@@ -164,15 +175,26 @@ class CustomDrinkingCard extends StatelessWidget {
             petList.length,
                 (index) => InkWell(
               onTap: () {
-
+                Provider.of<HabitProvider>(context, listen: false).selectPetIndex(index);
               },
-              child: Card(
-                elevation: 4,
-                shadowColor: Colors.cyanAccent,
-                child: Padding(
-                  padding: EdgeInsets.all(13),
-                  child: Text(petList[index]),
-                ),
+              child: Consumer<HabitProvider>(
+                builder: (context, provider, child) {
+                  bool isSelected = provider.selectedPetIndex == index;
+                  return Card(
+                    elevation: 4,
+                    shadowColor: Colors.cyanAccent,
+                    color: isSelected ? Colors.deepPurpleAccent : Colors.white,
+                    child: Padding(
+                      padding: EdgeInsets.all(13),
+                      child: Text(
+                        petList[index],
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),

@@ -66,29 +66,14 @@ class _RegisterInterestsState extends State<RegisterInterests> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
+            //  mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Padding(
-                  padding: EdgeInsets.only(top: 70),
+                  padding: EdgeInsets.only(top: 40,left: 30),
                   child: Text(
                     'Select your own wish!',
-                    style: GoogleFonts.greatVibes(
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 249, 249, 249),
-                      shadows: [
-                        Shadow(
-                          blurRadius: 10,
-                          color: Color.fromARGB(255, 224, 112, 244)
-                              .withOpacity(0.8),
-                          offset: Offset(0, 3),
-                        ),
-                        Shadow(
-                          blurRadius: 10,
-                          color: Colors.blueAccent.withOpacity(0.8),
-                          offset: Offset(0, 0),
-                        ),
-                      ],
-                    ),
+                    style: AppStyles.textStyleTitle,
                   ),
                 ),
                 SizedBox(height: 40),
@@ -135,12 +120,9 @@ class _RegisterInterestsState extends State<RegisterInterests> {
                         },
                         child: Text(
                           'Proceed',
-                          style: GoogleFonts.greatVibes(
-                            fontSize: 35,
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 184, 62, 225),
-                          ),
+                          style: AppStyles.textStyleForButton,
                         ),
+                        style: AppStyles.proceedButtonStyle,
                       ),
                     ),
                   ),
