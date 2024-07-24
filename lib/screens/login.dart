@@ -4,7 +4,7 @@ import 'package:lovigoapp/screens/registerInfo.dart';
 import 'package:lovigoapp/screens/registerInterests.dart';
 import '../styles.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'userProfile.dart';
+import 'userMainPage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -97,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                         height: 50,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>UserProfile()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>UserMainPage()));
                           },
                           child: Text(
                             textForLogin,

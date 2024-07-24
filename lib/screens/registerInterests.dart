@@ -1,149 +1,165 @@
-import 'package:lovigoapp/screens/registerDistance.dart';
-
-import 'registerInfo.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:lovigoapp/screens/registerInfo.dart';
+import 'package:http/http.dart' as http;
+import 'package:lovigoapp/screens/registerLifeStyle.dart';
 import '../styles.dart';
-
-void main() {
-  runApp(LovigoApp());
-}
-
-class LovigoApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: RegisterInterests(),
-    );
-  }
-}
+import 'package:lovigoapp/modules/relationship_type.dart';
+import 'package:lovigoapp/modules/userInfo.dart';
+import 'package:lovigoapp/services/api_service.dart';
 
 class RegisterInterests extends StatefulWidget {
-  final VoidCallback? onProceed;
+  final UserInfo userInfo;
 
-  const RegisterInterests({super.key, this.onProceed});
+  const RegisterInterests({super.key, required this.userInfo});
 
   @override
   State<RegisterInterests> createState() => _RegisterInterestsState();
 }
 
 class _RegisterInterestsState extends State<RegisterInterests> {
-  final List<Map<String, String>> imagePaths = [
-    {'imagePath': 'images/love1.png', 'label': 'Love'},
-    {'imagePath': 'images/result.png', 'label': 'Relationship'},
-    {'imagePath': 'images/ring.png', 'label': 'Marriage'},
-    {'imagePath': 'images/friend.png', 'label': 'Friendship'}
-  ];
+  List<RelationshipType> _relationshipTypes = [];
+  int? _selectedRelationshipTypeId;
+  bool _isLoading = true;
 
-  String? _selectedLabel;
+  @override
+  void initState() {
+    super.initState();
+    _fetchRelationshipTypes();
+  }
 
-  void _onCardClick(String label) {
+  Future<void> _fetchRelationshipTypes() async {
+    final response = await http.get(Uri.parse('https://lovigo.net/relationship-types'));
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body)['data'];
+      setState(() {
+        _relationshipTypes = jsonResponse.map((type) => RelationshipType.fromJson(type)).toList();
+        _isLoading = false;
+      });
+    } else {
+      throw Exception('Failed to load relationship types');
+    }
+  }
+
+  void _onCardClick(int relationshipTypeId) {
     setState(() {
-      if (_selectedLabel == label) {
-        _selectedLabel = null;
+      if (_selectedRelationshipTypeId == relationshipTypeId) {
+        _selectedRelationshipTypeId = null;
       } else {
-        _selectedLabel = label;
+        _selectedRelationshipTypeId = relationshipTypeId;
       }
     });
   }
 
   void _onProceed() {
-    if (_selectedLabel != null && widget.onProceed != null) {
-      widget.onProceed!();
+    if (_selectedRelationshipTypeId != null) {
+      widget.userInfo.relationshipTypeId = _selectedRelationshipTypeId;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RegisterLifeStyle(userInfo: widget.userInfo), // RegisterLifeStyle sayfasına yönlendirme
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select a relationship type')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: gradientDecoration,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-            //  mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 40,left: 30),
-                  child: Text(
-                    'Select your own wish!',
-                    style: AppStyles.textStyleTitle,
-                  ),
-                ),
-                SizedBox(height: 40),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 8.0,
-                      mainAxisSpacing: 8.0,
-                      childAspectRatio: 1.0,
-                    ),
-                    itemCount: imagePaths.length,
-                    itemBuilder: (context, index) {
-                      return InterestCard(
-                        imagePath: imagePaths[index]['imagePath']!,
-                        label: imagePaths[index]['label']!,
-                        isSelected:
-                        _selectedLabel == imagePaths[index]['label'],
-                        isClickable: _selectedLabel == null ||
-                            _selectedLabel == imagePaths[index]['label'],
-                        onCardClick: _onCardClick,
-                      );
-                    },
-                  ),
-                ),
-                if (_selectedLabel != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 40),
-                    child: SizedBox(
-                      width: 180,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => RegisterDistance(),
-                                ));
-                          });
-                        },
-                        child: Text(
-                          'Proceed',
-                          style: AppStyles.textStyleForButton,
-                        ),
-                        style: AppStyles.proceedButtonStyle,
+      body: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: gradientDecoration,
+            child: _isLoading
+                ? Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 60, left: 30),
+                      child: Text(
+                        'Select your own wish!',
+                        style: AppStyles.textStyleTitle,
                       ),
                     ),
-                  ),
-              ],
+                    SizedBox(height: 40),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 8.0,
+                          childAspectRatio: 1.0,
+                        ),
+                        itemCount: _relationshipTypes.length,
+                        itemBuilder: (context, index) {
+                          return InterestCard(
+                            label: _relationshipTypes[index].name,
+                            isSelected: _selectedRelationshipTypeId == _relationshipTypes[index].id,
+                            isClickable: _selectedRelationshipTypeId == null || _selectedRelationshipTypeId == _relationshipTypes[index].id,
+                            onCardClick: () => _onCardClick(_relationshipTypes[index].id),
+                          );
+                        },
+                      ),
+                    ),
+                    if (_selectedRelationshipTypeId != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 40),
+                        child: SizedBox(
+                          width: 180,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: _onProceed,
+                            child: Text(
+                              'Proceed',
+                              style: AppStyles.textStyleForButton,
+                            ),
+                            style: AppStyles.proceedButtonStyle,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+          Positioned(
+            top: 40,
+            left: 10,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Container(
+                child: Icon(Icons.arrow_back, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
 class InterestCard extends StatelessWidget {
-  final String imagePath;
   final String label;
   final bool isSelected;
   final bool isClickable;
-  final Function(String) onCardClick;
+  final VoidCallback onCardClick;
 
   InterestCard({
-    required this.imagePath,
     required this.label,
     required this.isSelected,
     required this.isClickable,
@@ -153,7 +169,7 @@ class InterestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: isClickable ? () => onCardClick(label) : null,
+      onTap: isClickable ? onCardClick : null,
       child: Card(
         color: isSelected
             ? Color.fromARGB(255, 231, 103, 236)
@@ -167,10 +183,8 @@ class InterestCard extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.asset(
-                imagePath,
-                fit: BoxFit.cover,
-              ),
+              // Görüntüyü kaldırdık çünkü API'den yalnızca metin geliyor
+              // Görüntüleri geri eklemek isterseniz, label isimlerine göre uygun bir resim ekleyebilirsiniz.
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(

@@ -1,82 +1,171 @@
-// lib/screens/registerLifeStyle2.dart
-import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:lovigoapp/providers/habit_provider.dart';
 import 'package:lovigoapp/screens/registerZodiac.dart';
 import '../styles.dart';
+import 'package:lovigoapp/modules/workout_habit.dart';
+import 'package:lovigoapp/modules/userInfo.dart';
 
 class RegisterLifeStyle2 extends StatefulWidget {
-  const RegisterLifeStyle2({super.key});
+  final UserInfo userInfo;
+
+  const RegisterLifeStyle2({super.key, required this.userInfo});
 
   @override
-  State<RegisterLifeStyle2> createState() => _RegisterLifeStyleState();
+  State<RegisterLifeStyle2> createState() => _RegisterLifeStyle2State();
 }
 
-class _RegisterLifeStyleState extends State<RegisterLifeStyle2> {
+class _RegisterLifeStyle2State extends State<RegisterLifeStyle2> {
+  List<Datum> _workoutHabits = [];
+  List<Datum> _petOwnerships = [];
+  bool _isLoadingWorkout = true;
+  bool _isLoadingPet = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchWorkoutHabits();
+    _fetchPetOwnerships();
+  }
+
+  Future<void> _fetchWorkoutHabits() async {
+    final response = await http.get(Uri.parse('http://lovigo.net/workout-routines'));
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      setState(() {
+        _workoutHabits = WorkoutHabits.fromJson(jsonResponse).data;
+        _isLoadingWorkout = false;
+      });
+    } else {
+      throw Exception('Failed to load workout habits');
+    }
+  }
+
+  Future<void> _fetchPetOwnerships() async {
+    final response = await http.get(Uri.parse('http://lovigo.net/pet-ownerships'));
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      setState(() {
+        _petOwnerships = WorkoutHabits.fromJson(jsonResponse).data; // Assuming same structure
+        _isLoadingPet = false;
+      });
+    } else {
+      throw Exception('Failed to load pet ownerships');
+    }
+  }
+
+  void _onProceed() async {
+    final provider = Provider.of<HabitProvider>(context, listen: false);
+
+    if (provider.selectedWorkoutIndex != null && provider.selectedPetIndex != null) {
+      widget.userInfo.workoutHabitId = _workoutHabits[provider.selectedWorkoutIndex!].id;
+      widget.userInfo.petOwnershipId = _petOwnerships[provider.selectedPetIndex!].id;
+
+
+      log('Workout Habit ID: ${widget.userInfo.workoutHabitId}');
+      log('Pet Ownership ID: ${widget.userInfo.petOwnershipId}');
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RegisterZodiac(userInfo: widget.userInfo),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select both workout and pet ownership')),
+      );
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: gradientDecoration,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: EdgeInsets.all(30),
-              child: Text(
-                'Let\'s talk about Life Style',
-                textAlign: TextAlign.center,
-                style: AppStyles.textStyleTitle,
+      body: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: gradientDecoration,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(30),
+                  child: Text(
+                    'Let\'s talk about Life Style',
+                    textAlign: TextAlign.center,
+                    style: AppStyles.textStyleTitle,
+                  ),
+                ),
+                Divider(),
+                Padding(
+                  padding: EdgeInsets.all(25),
+                  child: _isLoadingWorkout
+                      ? Center(child: CircularProgressIndicator())
+                      : buildWorkoutCards(context, _workoutHabits),
+                ),
+                Divider(),
+                Padding(
+                  padding: EdgeInsets.all(25),
+                  child: _isLoadingPet
+                      ? Center(child: CircularProgressIndicator())
+                      : buildPetCards(context, _petOwnerships),
+                ),
+                Divider(),
+                SizedBox(height: 30,),
+                ElevatedButton(
+                  onPressed: _onProceed,
+                  style: AppStyles.proceedButtonStyle,
+                  child: Text('Proceed', style: AppStyles.textStyleForButton),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 40,
+            left: 10,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black.withOpacity(0.0),
+                ),
+                child: Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                ),
               ),
             ),
-            Divider(),
-            Padding(
-              padding: EdgeInsets.all(25),
-              child: buildWorkoutCards(context),
-            ),
-            Divider(),
-            Padding(
-              padding: EdgeInsets.all(25),
-              child: buildPetCards(context),
-            ),
-            Divider(),
-            SizedBox(height: 30,),
-            ElevatedButton(
-              onPressed: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterZodiac()));
-              },
-              style: AppStyles.proceedButtonStyle,
-              child: Text('Proceed',style: AppStyles.textStyleForButton,),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-Widget buildWorkoutCards(BuildContext context) {
+Widget buildWorkoutCards(BuildContext context, List<Datum> workoutHabits) {
   return Container(
     color: Colors.transparent,
-    child: CustomWorkoutCard(),
+    child: CustomWorkoutCard(workoutHabits: workoutHabits),
   );
 }
 
 class CustomWorkoutCard extends StatelessWidget {
-  const CustomWorkoutCard({super.key});
+  final List<Datum> workoutHabits;
+
+  const CustomWorkoutCard({super.key, required this.workoutHabits});
 
   @override
   Widget build(BuildContext context) {
-    List<String> workoutList = [
-      "Everyday",
-      "Often",
-      "Never",
-      "Sometimes",
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -97,7 +186,7 @@ class CustomWorkoutCard extends StatelessWidget {
           spacing: 8.0,
           runSpacing: 4.0,
           children: List.generate(
-            workoutList.length,
+            workoutHabits.length,
                 (index) => InkWell(
               onTap: () {
                 Provider.of<HabitProvider>(context, listen: false).selectWorkoutIndex(index);
@@ -112,7 +201,7 @@ class CustomWorkoutCard extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.all(13),
                       child: Text(
-                        workoutList[index],
+                        workoutHabits[index].name ?? '',
                         style: TextStyle(
                           color: isSelected ? Colors.white : Colors.black,
                         ),
@@ -129,36 +218,27 @@ class CustomWorkoutCard extends StatelessWidget {
   }
 }
 
-Widget buildPetCards(BuildContext context) {
+Widget buildPetCards(BuildContext context, List<Datum> petOwnerships) {
   return Container(
     color: Colors.transparent,
-    child: CustomPetCard(),
+    child: CustomPetCard(petOwnerships: petOwnerships),
   );
 }
 
 class CustomPetCard extends StatelessWidget {
-  const CustomPetCard({super.key});
+  final List<Datum> petOwnerships;
+
+  const CustomPetCard({super.key, required this.petOwnerships});
 
   @override
   Widget build(BuildContext context) {
-    List<String> petList = [
-      "Dog",
-      "Cat",
-      "Hamster",
-      "Bird",
-      "Fish",
-      "Reptile",
-      "Don\'t have but love",
-      "Pet-free"
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
-            children:[
+            children: [
               Icon(Icons.pets_rounded, color: Colors.white,),
               SizedBox(width: 15,),
               Text(
@@ -172,7 +252,7 @@ class CustomPetCard extends StatelessWidget {
           spacing: 8.0,
           runSpacing: 4.0,
           children: List.generate(
-            petList.length,
+            petOwnerships.length,
                 (index) => InkWell(
               onTap: () {
                 Provider.of<HabitProvider>(context, listen: false).selectPetIndex(index);
@@ -187,7 +267,7 @@ class CustomPetCard extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.all(13),
                       child: Text(
-                        petList[index],
+                        petOwnerships[index].name ?? '',
                         style: TextStyle(
                           color: isSelected ? Colors.white : Colors.black,
                         ),

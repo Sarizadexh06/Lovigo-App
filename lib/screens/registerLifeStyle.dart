@@ -1,90 +1,167 @@
-// lib/screens/registerLifeStyle.dart
-
-import 'package:flutter/cupertino.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:lovigoapp/providers/habit_provider.dart';
-import 'package:lovigoapp/screens/registerInterests.dart';
-import 'package:lovigoapp/screens/registerLifeStyle2.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:lovigoapp/providers/habit_provider.dart';
+import 'package:lovigoapp/screens/registerLifeStyle2.dart';
 import '../styles.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:lovigoapp/modules/smoking_habit.dart';
+import 'package:lovigoapp/modules/drinking_habit.dart';
+import 'package:lovigoapp/modules/userInfo.dart';
 
 class RegisterLifeStyle extends StatefulWidget {
-  const RegisterLifeStyle({super.key});
+  final UserInfo userInfo;
+
+  const RegisterLifeStyle({super.key, required this.userInfo});
 
   @override
   State<RegisterLifeStyle> createState() => _RegisterLifeStyleState();
 }
 
 class _RegisterLifeStyleState extends State<RegisterLifeStyle> {
+  List<SmokingHabit> _smokingHabits = [];
+  List<Datum> _drinkingHabits = [];
+  bool _isLoadingSmoking = true;
+  bool _isLoadingDrinking = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchSmokingHabits();
+    _fetchDrinkingHabits();
+  }
+
+  Future<void> _fetchSmokingHabits() async {
+    final response = await http.get(Uri.parse('http://lovigo.net/smoking-habits'));
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body)['data'];
+      setState(() {
+        _smokingHabits = jsonResponse.map((habit) => SmokingHabit.fromJson(habit)).toList();
+        _isLoadingSmoking = false;
+      });
+    } else {
+      throw Exception('Failed to load smoking habits');
+    }
+  }
+
+  Future<void> _fetchDrinkingHabits() async {
+    final response = await http.get(Uri.parse('http://lovigo.net/drinking-habits'));
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body)['data'];
+      setState(() {
+        _drinkingHabits = jsonResponse.map((habit) => Datum.fromJson(habit)).toList();
+        _isLoadingDrinking = false;
+      });
+    } else {
+      throw Exception('Failed to load drinking habits');
+    }
+  }
+
+  void _onProceed() {
+    final provider = Provider.of<HabitProvider>(context, listen: false);
+
+    if (provider.selectedSmokingIndex != null && provider.selectedDrinkingIndex != null) {
+      widget.userInfo.smokingHabitId = _smokingHabits[provider.selectedSmokingIndex!].id;
+      widget.userInfo.drinkingHabitId = _drinkingHabits[provider.selectedDrinkingIndex!].id;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RegisterLifeStyle2(userInfo: widget.userInfo),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select both smoking and drinking habits')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: gradientDecoration,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: EdgeInsets.all(35),
-              child: Text(
-                'Let\'s talk about your life style',
-                textAlign: TextAlign.center,
-                style: AppStyles.textStyleTitle,
+      body: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: gradientDecoration,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(35),
+                  child: Text(
+                    'Let\'s talk about your life style',
+                    textAlign: TextAlign.center,
+                    style: AppStyles.textStyleTitle,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(25),
+                  child: _isLoadingSmoking
+                      ? Center(child: CircularProgressIndicator())
+                      : buildSmokingCards(context, _smokingHabits),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(25),
+                  child: _isLoadingDrinking
+                      ? Center(child: CircularProgressIndicator())
+                      : buildDrinkingCards(context, _drinkingHabits),
+                ),
+                SizedBox(height: 30,),
+                SizedBox(
+                  height: 50,
+                  width: 180,
+                  child: ElevatedButton(
+                    onPressed: _onProceed,
+                    style: AppStyles.proceedButtonStyle,
+                    child: Text('Proceed', style: AppStyles.textStyleForButton),
+                  ),
+                )
+              ],
+            ),
+          ),
+          Positioned(
+            top: 40,
+            left: 10,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black.withOpacity(0.0),
+                ),
+                child: Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                ),
               ),
             ),
-         //  Divider(),
-            Padding(
-              padding: EdgeInsets.all(25),
-              child: buildSmokingCards(context),
-            ),
-
-            //Divider(),
-            Padding(
-              padding: EdgeInsets.all(25),
-              child: buildDrinkingCards(context),
-            ),
-            //Divider(),
-            SizedBox(height: 30,),
-            SizedBox(
-              height: 50,
-            width: 180,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterLifeStyle2()));
-                },
-                style: AppStyles.proceedButtonStyle,
-                child: Text('Proceed', style: AppStyles.textStyleForButton),
-              ),
-            )
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-Widget buildSmokingCards(BuildContext context) {
+Widget buildSmokingCards(BuildContext context, List<SmokingHabit> smokingHabits) {
   return Container(
     color: Colors.transparent,
-    child: CustomSmokingCard(),
+    child: CustomSmokingCard(smokingHabits: smokingHabits),
   );
 }
 
 class CustomSmokingCard extends StatelessWidget {
-  const CustomSmokingCard({super.key});
+  final List<SmokingHabit> smokingHabits;
+
+  const CustomSmokingCard({super.key, required this.smokingHabits});
 
   @override
   Widget build(BuildContext context) {
-    List<String> smokingList = [
-      "Smoker",
-      "Non-Smoker",
-      "Occasional Smoker",
-      "Former Smoker",
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -105,7 +182,7 @@ class CustomSmokingCard extends StatelessWidget {
           spacing: 8.0,
           runSpacing: 4.0,
           children: List.generate(
-            smokingList.length,
+            smokingHabits.length,
                 (index) => InkWell(
               onTap: () {
                 Provider.of<HabitProvider>(context, listen: false).selectSmokingIndex(index);
@@ -120,7 +197,7 @@ class CustomSmokingCard extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.all(13),
                       child: Text(
-                        smokingList[index],
+                        smokingHabits[index].name,
                         style: TextStyle(
                           color: isSelected ? Colors.white : Colors.black,
                         ),
@@ -137,46 +214,41 @@ class CustomSmokingCard extends StatelessWidget {
   }
 }
 
-Widget buildDrinkingCards(BuildContext context) {
+Widget buildDrinkingCards(BuildContext context, List<Datum> drinkingHabits) {
   return Container(
     color: Colors.transparent,
-    child: CustomDrinkingCard(),
+    child: CustomDrinkingCard(drinkingHabits: drinkingHabits),
   );
 }
 
 class CustomDrinkingCard extends StatelessWidget {
-  const CustomDrinkingCard({super.key});
+  final List<Datum> drinkingHabits;
+
+  const CustomDrinkingCard({super.key, required this.drinkingHabits});
 
   @override
   Widget build(BuildContext context) {
-    List<String> drinkingList = [
-      "Sober",
-      "Sober curious",
-      "On special occasions",
-      "Most Nights"
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
-              children:[
-                Icon(Icons.local_drink_rounded, color: Colors.white,),
-                SizedBox(width: 15,),
-                Text(
-                  "How often you drink?",
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-              ]
+            children: [
+              Icon(Icons.local_drink_rounded, color: Colors.white,),
+              SizedBox(width: 15,),
+              Text(
+                "How often you drink?",
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+            ],
           ),
         ),
         Wrap(
           spacing: 8.0,
           runSpacing: 4.0,
           children: List.generate(
-            drinkingList.length,
+            drinkingHabits.length,
                 (index) => InkWell(
               onTap: () {
                 Provider.of<HabitProvider>(context, listen: false).selectDrinkingIndex(index);
@@ -191,7 +263,7 @@ class CustomDrinkingCard extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.all(13),
                       child: Text(
-                        drinkingList[index],
+                        drinkingHabits[index].name ?? '',
                         style: TextStyle(
                           color: isSelected ? Colors.white : Colors.black,
                         ),

@@ -27,67 +27,91 @@ class _RegisterDistanceState extends State<RegisterDistance> {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: gradientDecoration,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+      body: Stack(
+        children:[
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: gradientDecoration,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
 
-            Padding(
-              padding: EdgeInsets.only(top: 60,right: 1),
-              child: Text('Your distance \n preference?',style: AppStyles.textStyleTitle,),),
+                Padding(
+                  padding: EdgeInsets.only(top: 60,right: 1),
+                  child: Text('Your distance \n preference?',style: AppStyles.textStyleTitle,),),
 
-            Padding(
-                padding: EdgeInsets.all(25),
-                child: Text('Use the slider to set maximum distance you want your potential matches to be located.',style: TextStyle(color: Colors.white),)),
-            SizedBox(height: 50,),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Distance',
-                    style: TextStyle( color: Colors.white,fontSize: 18, fontWeight: FontWeight.bold),
+                Padding(
+                    padding: EdgeInsets.all(25),
+                    child: Text('Use the slider to set maximum distance you want your potential matches to be located.',style: TextStyle(color: Colors.white),)),
+                SizedBox(height: 50,),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Distance',
+                        style: TextStyle( color: Colors.white,fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '${_currentSliderValue.round()} km', // Slider değeri sağ üst köşede km olarak gösteriliyor
+                        style: TextStyle(fontSize: 16,color: Colors.white),
+                      ),
+                    ],
                   ),
-                  Text(
-                    '${_currentSliderValue.round()} km', // Slider değeri sağ üst köşede km olarak gösteriliyor
-                    style: TextStyle(fontSize: 16,color: Colors.white),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                  child: Slider(
+                    value: _currentSliderValue,
+                    min: 0,
+                    max: 100,
+                    divisions: 5,
+                    activeColor:Colors.purpleAccent,
+                    inactiveColor: Colors.white,
+                    label: _currentSliderValue.round().toString(),
+                    onChanged: (double value) {
+                      setState(() {
+                        _currentSliderValue = value;
+                      });
+                    },
+
                   ),
-                ],
+                ),
+
+                SizedBox(height: 100,),
+
+                ElevatedButton(
+                  onPressed: _proceedAnotherPage,
+                  style:AppStyles.proceedButtonStyle,
+                  child: Text('Proceed',style: AppStyles.textStyleForButton,),
+                )
+              ],
+            ),
+          ),
+          Positioned(
+            top: 40,
+            left: 10,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black.withOpacity(0.0),
+                ),
+                child: Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                ),
               ),
             ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-              child: Slider(
-                value: _currentSliderValue,
-                min: 0,
-                max: 100,
-                divisions: 5,
-                activeColor:Colors.purpleAccent,
-                inactiveColor: Colors.white,
-                label: _currentSliderValue.round().toString(),
-                onChanged: (double value) {
-                  setState(() {
-                    _currentSliderValue = value;
-                  });
-                },
-
-              ),
-            ),
-
-            SizedBox(height: 100,),
-
-            ElevatedButton(
-              onPressed: _proceedAnotherPage,
-              style:AppStyles.proceedButtonStyle,
-              child: Text('Proceed',style: AppStyles.textStyleForButton,),
-            )
-          ],
-        ),
+          ),
+        ]
       ),
     );
   }

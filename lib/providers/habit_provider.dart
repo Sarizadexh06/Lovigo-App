@@ -5,13 +5,15 @@ class HabitProvider extends ChangeNotifier {
   int? _selectedDrinkingIndex;
   int? _selectedWorkoutIndex;
   int? _selectedPetIndex;
-  int? _selectedZodiacIndex; // Changed to match naming convention
+  int? _selectedZodiacIndex;
+  int? _selectedSocialMediaUseIndex;
 
   int? get selectedSmokingIndex => _selectedSmokingIndex;
   int? get selectedDrinkingIndex => _selectedDrinkingIndex;
   int? get selectedWorkoutIndex => _selectedWorkoutIndex;
   int? get selectedPetIndex => _selectedPetIndex;
-  int? get selectedZodiacIndex => _selectedZodiacIndex; // Changed getter name
+  int? get selectedZodiacIndex => _selectedZodiacIndex;
+  int? get selectedSocialMediaUseIndex => _selectedSocialMediaUseIndex;
 
   void selectSmokingIndex(int index) {
     _selectedSmokingIndex = index;
@@ -35,6 +37,10 @@ class HabitProvider extends ChangeNotifier {
 
   void selectZodiacIndex(int index) {
     _selectedZodiacIndex = index;
+    notifyListeners();
+  }
+  void selectSocialMediaUse(int index) {
+    _selectedSocialMediaUseIndex = index;
     notifyListeners();
   }
 }
