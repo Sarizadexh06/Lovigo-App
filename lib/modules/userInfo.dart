@@ -10,7 +10,7 @@ class UserInfo {
   int? drinkingHabitId;
   int? workoutHabitId;
   int? petOwnershipId;
-
+  int? zodiacId;
   UserInfo({
     required this.firstName,
     required this.lastName,
@@ -23,5 +23,6 @@ class UserInfo {
     this.drinkingHabitId,
     this.workoutHabitId,
     this.petOwnershipId,
+    this.zodiacId
   });
 }

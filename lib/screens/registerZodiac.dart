@@ -9,6 +9,7 @@ import '../styles.dart';
 import 'package:lovigoapp/modules/zodiac_module.dart';
 import 'package:lovigoapp/modules/userInfo.dart';
 import 'package:lovigoapp/services/api_service.dart';
+import 'package:lovigoapp/screens/registerExtraInfo.dart';
 
 class RegisterZodiac extends StatefulWidget {
   final UserInfo userInfo;
@@ -45,46 +46,7 @@ class _RegisterZodiacState extends State<RegisterZodiac> {
     }
   }
 
-  Future<void> _postZodiacSign(int zodiacId) async {
-
-    final requestBody = json.encode({
-      'first_name': widget.userInfo.firstName,
-      'last_name': widget.userInfo.lastName,
-      'email': widget.userInfo.email,
-      'phone': widget.userInfo.phone,
-      'password': widget.userInfo.password,
-      'gender_id': widget.userInfo.genderId,
-      'relationship_type_id': widget.userInfo.relationshipTypeId,
-      'smoking_habit_id': widget.userInfo.smokingHabitId,
-      'drinking_habit_id': widget.userInfo.drinkingHabitId,
-
-      'workout_habit_id': widget.userInfo.workoutHabitId,
-      'pet_ownership_id': widget.userInfo.petOwnershipId,
-      'zodiac_id': zodiacId,
-    });
-
-    log('Request body: $requestBody');
-
-    final response = await http.post(
-      Uri.parse('http://lovigo.net/user'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: requestBody,
-    );
-
-    log('Response status: ${response.statusCode}');
-    log('Response body: ${response.body}');
-
-    if (response.statusCode == 200) {
-      log('Zodiac sign posted successfully');
-    } else {
-      log('Failed to post zodiac sign');
-      throw Exception('Failed to post zodiac sign');
-    }
-  }
-
-  void _onProceed() async {
+  void _onProceed() {
     final provider = Provider.of<HabitProvider>(context, listen: false);
 
     if (provider.selectedZodiacIndex != null) {
@@ -94,20 +56,14 @@ class _RegisterZodiacState extends State<RegisterZodiac> {
       log('Zodiac ID: $selectedZodiacId');
 
 
+      widget.userInfo.zodiacId = selectedZodiacId;
 
-      try {
-        await _postZodiacSign(selectedZodiacId!);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Zodiac sign posted successfully')),
-        );
-
-      } catch (e) {
-        log('Exception: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to post zodiac sign: $e')),
-        );
-      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RegisterExtraInfo(userInfo: widget.userInfo),
+        ),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please select a zodiac sign')),
@@ -198,11 +154,11 @@ class _RegisterZodiacState extends State<RegisterZodiac> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 45,),
+                    SizedBox(height: 45),
                     ElevatedButton(
                       onPressed: _onProceed,
                       style: AppStyles.proceedButtonStyle,
-                      child: Text('Proceed', style: AppStyles.textStyleForButton,),
+                      child: Text('Proceed', style: AppStyles.textStyleForButton),
                     ),
                   ],
                 ),

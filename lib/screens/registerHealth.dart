@@ -3,56 +3,64 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:lovigoapp/modules/userInfo.dart';
 import 'package:lovigoapp/providers/habit_provider.dart';
-import 'package:lovigoapp/screens/registerHealth.dart';
 import 'package:provider/provider.dart';
 import '../styles.dart';
-import 'package:lovigoapp/modules/social_media_use.dart';
-import 'package:lovigoapp/modules/education_level.dart';
+import 'package:lovigoapp/modules/dietary_preference.dart';
+import 'package:lovigoapp/modules/sleeping_routine.dart';
+import 'package:lovigoapp/screens/registerFamilyPlans.dart';
 
-class RegisterExtraInfo extends StatefulWidget {
+class RegisterHealth extends StatefulWidget {
   final UserInfo userInfo;
 
-  const RegisterExtraInfo({Key? key, required this.userInfo}) : super(key: key);
+  const RegisterHealth({Key? key, required this.userInfo}) : super(key: key);
 
   @override
-  State<RegisterExtraInfo> createState() => _RegisterExtraInfoState();
+  State<RegisterHealth> createState() => _RegisterHealthState();
 }
 
-class _RegisterExtraInfoState extends State<RegisterExtraInfo> {
-  List<SocialMediaUse> socialMediaUsages = [];
-  List<EducationLevel> educationLevels = [];
+class _RegisterHealthState extends State<RegisterHealth> {
+  List<DietaryPreference> dietaryPreferences = [];
+  List<SleepingRoutine> sleepingRoutines = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchSocialMediaUsages();
-    _fetchEducationLevels();
+    _fetchDietaryPreferences();
+    _fetchSleepingRoutines();
   }
 
-  Future<void> _fetchEducationLevels() async {
-    final response = await http.get(Uri.parse('http://lovigo.net/education-levels'));
+  Future<void> _fetchDietaryPreferences() async {
+    final response = await http.get(Uri.parse('http://lovigo.net/dietary-preferances'));
     if (response.statusCode == 200) {
       List jsonResponse = json.decode(response.body)['data'];
       setState(() {
-        educationLevels = jsonResponse.map((item) => EducationLevel.fromJson(item)).toList();
-        _isLoading = false;
+        dietaryPreferences = jsonResponse.map((item) => DietaryPreference.fromJson(item)).toList();
+        _checkLoadingStatus();
       });
     } else {
-      throw Exception('Failed to load education levels');
+      throw Exception('Failed to load dietary preferences');
     }
   }
 
-  Future<void> _fetchSocialMediaUsages() async {
-    final response = await http.get(Uri.parse('http://lovigo.net/social-media-usages'));
+  Future<void> _fetchSleepingRoutines() async {
+    final response = await http.get(Uri.parse('http://lovigo.net/sleeping-routines'));
     if (response.statusCode == 200) {
       List jsonResponse = json.decode(response.body)['data'];
       setState(() {
-        socialMediaUsages = jsonResponse.map((item) => SocialMediaUse.fromJson(item)).toList();
-        _isLoading = false;
+        sleepingRoutines = jsonResponse.map((item) => SleepingRoutine.fromJson(item)).toList();
+        _checkLoadingStatus();
       });
     } else {
-      throw Exception('Failed to load social media usages');
+      throw Exception('Failed to load sleeping routines');
+    }
+  }
+
+  void _checkLoadingStatus() {
+    if (dietaryPreferences.isNotEmpty && sleepingRoutines.isNotEmpty) {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -71,7 +79,7 @@ class _RegisterExtraInfoState extends State<RegisterExtraInfo> {
                 Padding(
                   padding: const EdgeInsets.all(35),
                   child: Text(
-                    'Let\'s talk about your information',
+                    'Let\'s talk about your health',
                     textAlign: TextAlign.center,
                     style: AppStyles.textStyleTitle,
                   ),
@@ -82,9 +90,9 @@ class _RegisterExtraInfoState extends State<RegisterExtraInfo> {
                       ? CircularProgressIndicator()
                       : Column(
                     children: [
-                      buildingSocialMediaCards(context, socialMediaUsages),
+                      buildingDietaryPreferenceCards(context, dietaryPreferences),
                       const SizedBox(height: 25),
-                      buildingEducationCards(context, educationLevels),
+                      buildingSleepingRoutineCards(context, sleepingRoutines),
                     ],
                   ),
                 ),
@@ -97,7 +105,7 @@ class _RegisterExtraInfoState extends State<RegisterExtraInfo> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => RegisterHealth(userInfo: widget.userInfo),
+                          builder: (context) => RegisterFamilyPlans(userInfo: widget.userInfo),
                         ),
                       );
                     },
@@ -134,17 +142,17 @@ class _RegisterExtraInfoState extends State<RegisterExtraInfo> {
   }
 }
 
-Widget buildingSocialMediaCards(BuildContext context, List<SocialMediaUse> socialMediaUsages) {
+Widget buildingDietaryPreferenceCards(BuildContext context, List<DietaryPreference> dietaryPreferences) {
   return Container(
     color: Colors.transparent,
-    child: CustomSocialMediaCard(socialMediaUsages: socialMediaUsages),
+    child: CustomDietaryPreferenceCard(dietaryPreferences: dietaryPreferences),
   );
 }
 
-class CustomSocialMediaCard extends StatelessWidget {
-  final List<SocialMediaUse> socialMediaUsages;
+class CustomDietaryPreferenceCard extends StatelessWidget {
+  final List<DietaryPreference> dietaryPreferences;
 
-  const CustomSocialMediaCard({Key? key, required this.socialMediaUsages}) : super(key: key);
+  const CustomDietaryPreferenceCard({Key? key, required this.dietaryPreferences}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -155,10 +163,10 @@ class CustomSocialMediaCard extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-              const Icon(Icons.facebook_rounded, color: Colors.white),
+              const Icon(Icons.fastfood_rounded, color: Colors.white),
               const SizedBox(width: 15),
               Text(
-                'How often do you use \n Social media?',
+                'What is your \n dietary preference?',
                 style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ],
@@ -168,14 +176,14 @@ class CustomSocialMediaCard extends StatelessWidget {
           spacing: 8.0,
           runSpacing: 4.0,
           children: List.generate(
-            socialMediaUsages.length,
+            dietaryPreferences.length,
                 (index) => InkWell(
               onTap: () {
-                Provider.of<HabitProvider>(context, listen: false).selectSocialMediaUse(index);
+                Provider.of<HabitProvider>(context, listen: false).selectDietaryPreferenceIndex(index);
               },
               child: Consumer<HabitProvider>(
                 builder: (context, provider, child) {
-                  bool isSelected = provider.selectedSocialMediaUseIndex != null && provider.selectedSocialMediaUseIndex == index;
+                  bool isSelected = provider.selectedDietaryPreferenceIndex != null && provider.selectedDietaryPreferenceIndex == index;
                   return Card(
                     elevation: 4,
                     shadowColor: Colors.cyanAccent,
@@ -183,7 +191,7 @@ class CustomSocialMediaCard extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(13),
                       child: Text(
-                        socialMediaUsages[index].name,
+                        dietaryPreferences[index].name,
                         style: TextStyle(
                           color: isSelected ? Colors.white : Colors.black,
                         ),
@@ -200,19 +208,17 @@ class CustomSocialMediaCard extends StatelessWidget {
   }
 }
 
-
-
-Widget buildingEducationCards(BuildContext context, List<EducationLevel> educationLevels) {
+Widget buildingSleepingRoutineCards(BuildContext context, List<SleepingRoutine> sleepingRoutines) {
   return Container(
     color: Colors.transparent,
-    child: CustomEducationCard(educationLevels: educationLevels),
+    child: CustomSleepingRoutineCard(sleepingRoutines: sleepingRoutines),
   );
 }
 
-class CustomEducationCard extends StatelessWidget {
-  final List<EducationLevel> educationLevels;
+class CustomSleepingRoutineCard extends StatelessWidget {
+  final List<SleepingRoutine> sleepingRoutines;
 
-  const CustomEducationCard({Key? key, required this.educationLevels}) : super(key: key);
+  const CustomSleepingRoutineCard({Key? key, required this.sleepingRoutines}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -223,10 +229,10 @@ class CustomEducationCard extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-              const Icon(Icons.school_rounded, color: Colors.white),
+              const Icon(Icons.nights_stay_rounded, color: Colors.white),
               const SizedBox(width: 15),
               Text(
-                'What is your \n education level?',
+                'What is your \n sleeping routine?',
                 style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ],
@@ -236,14 +242,14 @@ class CustomEducationCard extends StatelessWidget {
           spacing: 8.0,
           runSpacing: 4.0,
           children: List.generate(
-            educationLevels.length,
+            sleepingRoutines.length,
                 (index) => InkWell(
               onTap: () {
-                Provider.of<HabitProvider>(context, listen: false).selectEducationIndex(index);
+                Provider.of<HabitProvider>(context, listen: false).selectSleepingRoutineIndex(index);
               },
               child: Consumer<HabitProvider>(
                 builder: (context, provider, child) {
-                  bool isSelected = provider.selectedEducationIndex != null && provider.selectedEducationIndex == index;
+                  bool isSelected = provider.selectedSleepingRoutineIndex != null && provider.selectedSleepingRoutineIndex == index;
                   return Card(
                     elevation: 4,
                     shadowColor: Colors.cyanAccent,
@@ -251,7 +257,7 @@ class CustomEducationCard extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(13),
                       child: Text(
-                        educationLevels[index].name,
+                        sleepingRoutines[index].name,
                         style: TextStyle(
                           color: isSelected ? Colors.white : Colors.black,
                         ),
