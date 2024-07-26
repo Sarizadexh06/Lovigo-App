@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:lovigoapp/modules/gender_module.dart';
 import 'package:lovigoapp/modules/userInfo.dart';
@@ -43,7 +45,13 @@ class _RegisterGenderState extends State<RegisterGender> {
 
   void _onProceed() async {
     if (_selectedGenderId != null) {
-      widget.userInfo.genderId = _selectedGenderId;
+      // Debug log to check selected gender ID
+      log('Selected Gender ID: $_selectedGenderId');
+
+      widget.userInfo.genderId = _selectedGenderId!;
+
+      // Log UserInfo after setting Gender ID
+      log('User Info after setting Gender ID: ${widget.userInfo.genderId}');
 
       Navigator.push(
         context,
@@ -57,6 +65,7 @@ class _RegisterGenderState extends State<RegisterGender> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

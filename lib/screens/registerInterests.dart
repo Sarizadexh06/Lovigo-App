@@ -52,7 +52,7 @@ class _RegisterInterestsState extends State<RegisterInterests> {
 
   void _onProceed() {
     if (_selectedRelationshipTypeId != null) {
-      widget.userInfo.relationshipTypeId = _selectedRelationshipTypeId;
+      widget.userInfo.relationshipTypeId = _selectedRelationshipTypeId!;
 
       Navigator.push(
         context,

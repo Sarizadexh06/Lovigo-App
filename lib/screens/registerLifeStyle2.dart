@@ -61,19 +61,35 @@ class _RegisterLifeStyle2State extends State<RegisterLifeStyle2> {
     final provider = Provider.of<HabitProvider>(context, listen: false);
 
     if (provider.selectedWorkoutIndex != null && provider.selectedPetIndex != null) {
-      widget.userInfo.workoutHabitId = _workoutHabits[provider.selectedWorkoutIndex!].id;
-      widget.userInfo.petOwnershipId = _petOwnerships[provider.selectedPetIndex!].id;
+      if (provider.selectedWorkoutIndex! < _workoutHabits.length && provider.selectedPetIndex! < _petOwnerships.length) {
+        final selectedWorkoutHabitId = _workoutHabits[provider.selectedWorkoutIndex!].id;
+        final selectedPetOwnershipId = _petOwnerships[provider.selectedPetIndex!].id;
 
+        if (selectedWorkoutHabitId != null && selectedPetOwnershipId != null) {
+          widget.userInfo.workoutHabitId = selectedWorkoutHabitId;
+          widget.userInfo.petOwnershipId = selectedPetOwnershipId;
 
-      log('Workout Habit ID: ${widget.userInfo.workoutHabitId}');
-      log('Pet Ownership ID: ${widget.userInfo.petOwnershipId}');
+          // Debug log to check values
+          log('Selected Workout Habit ID: $selectedWorkoutHabitId');
+          log('Selected Pet Ownership ID: $selectedPetOwnershipId');
+          log('User Info before navigation: ${widget.userInfo}');
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RegisterZodiac(userInfo: widget.userInfo),
-        ),
-      );
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RegisterZodiac(userInfo: widget.userInfo),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Invalid selection')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invalid selection')),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please select both workout and pet ownership')),
@@ -217,6 +233,7 @@ class CustomWorkoutCard extends StatelessWidget {
     );
   }
 }
+
 
 Widget buildPetCards(BuildContext context, List<Datum> petOwnerships) {
   return Container(

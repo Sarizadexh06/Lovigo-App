@@ -53,14 +53,15 @@ class _RegisterInfoState extends State<RegisterInfo> {
                     child: Text('Proceed', style: AppStyles.textStyleForButton),
                     style: AppStyles.proceedButtonStyle,
                   ),
-                  SizedBox(height: 30,),
+                  SizedBox(height: 30),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Container(
-                          width: 110,
-                          height: 110,
-                          child: Image.asset('images/kalp.png')),
+                        width: 110,
+                        height: 110,
+                        child: Image.asset('images/kalp.png'),
+                      ),
                     ],
                   ),
                 ],
@@ -111,6 +112,19 @@ class _RegisterInfoState extends State<RegisterInfo> {
       email: _emailController.text,
       phone: _phoneController.text,
       password: _passwordController.text,
+      genderId: 0, // Varsayılan değerler atandı
+      relationshipTypeId: 0, // Varsayılan değerler atandı
+      smokingHabitId: 0, // Varsayılan değerler atandı
+      drinkingHabitId: 0,
+      workoutHabitId: 0,
+      petOwnershipId: 0,
+      zodiacId: 0,
+      socialMediaUseId: 0,
+      educationId: 0,
+      dietaryPreferenceId: 0,
+      sleepingRoutineId: 0,
+      familyPlanId: 0,
+      communicationStyleId: 0,
     );
 
     Navigator.push(

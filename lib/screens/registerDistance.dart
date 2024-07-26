@@ -19,10 +19,10 @@ class _RegisterDistanceState extends State<RegisterDistance> {
   double _currentSliderValue=0;
   void _proceedAnotherPage() {
 
-    Navigator.push(
+   /* Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => RegisterLifeStyle()),
-    );
+    ); */
   }
   @override
   Widget build(BuildContext context) {

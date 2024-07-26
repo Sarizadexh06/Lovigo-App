@@ -1,12 +1,12 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
-import 'package:lovigoapp/modules/communication_style.dart';
-import 'package:lovigoapp/modules/family_plan.dart';
-import 'package:lovigoapp/styles.dart';
 import 'package:lovigoapp/modules/userInfo.dart';
+import 'package:provider/provider.dart';
+import '../styles.dart';
+import 'package:lovigoapp/modules/family_plan.dart';
+import 'package:lovigoapp/modules/communication_style.dart';
 import 'package:lovigoapp/providers/habit_provider.dart';
 import 'package:lovigoapp/services/api_service.dart';
 
@@ -125,19 +125,19 @@ class _RegisterFamilyPlansState extends State<RegisterFamilyPlans> {
         email: widget.userInfo.email,
         phone: widget.userInfo.phone,
         password: widget.userInfo.password,
-        genderId: widget.userInfo.genderId!,
-        relationshipTypeId: widget.userInfo.relationshipTypeId!,
-        smokingHabitId: widget.userInfo.smokingHabitId!,
-        drinkingHabitId: widget.userInfo.drinkingHabitId!,
-        workoutHabitId: widget.userInfo.workoutHabitId!,
-        petOwnershipId: widget.userInfo.petOwnershipId!,
-        zodiacId: provider.selectedZodiacIndex!,
+        genderId: widget.userInfo.genderId,
+        relationshipTypeId: widget.userInfo.relationshipTypeId,
+        smokingHabitId: widget.userInfo.smokingHabitId,
+        drinkingHabitId: widget.userInfo.drinkingHabitId,
+        workoutHabitId: widget.userInfo.workoutHabitId,
+        petOwnershipId: widget.userInfo.petOwnershipId,
+        zodiacId: provider.selectedZodiacIndex! + 1,
         socialMediaUseId: provider.selectedSocialMediaUseIndex!,
-        educationId: provider.selectedEducationIndex!,
+        educationId: provider.selectedEducationIndex! + 1,
         dietaryPreferenceId: provider.selectedDietaryPreferenceIndex!,
         sleepingRoutineId: provider.selectedSleepingRoutineIndex!,
-        familyPlanId: provider.selectedFamilyPlanIndex!,
-        communicationStyleId: provider.selectedCommunicationStyleIndex!,
+        familyPlanId: provider.selectedFamilyPlanIndex! + 1,
+        communicationStyleId: provider.selectedCommunicationStyleIndex! + 1,
       );
 
       // User created successfully, navigate to another page or show success message
@@ -187,7 +187,7 @@ class _RegisterFamilyPlansState extends State<RegisterFamilyPlans> {
                     height: 50,
                     width: 180,
                     child: ElevatedButton(
-                      onPressed: _submitUserInfo,
+                      onPressed: _submitUserInfo, // API'ye verileri gönder
                       style: AppStyles.proceedButtonStyle,
                       child: Text('Proceed', style: AppStyles.textStyleForButton),
                     ),

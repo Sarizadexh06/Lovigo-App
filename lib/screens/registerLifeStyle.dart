@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -61,21 +62,42 @@ class _RegisterLifeStyleState extends State<RegisterLifeStyle> {
     final provider = Provider.of<HabitProvider>(context, listen: false);
 
     if (provider.selectedSmokingIndex != null && provider.selectedDrinkingIndex != null) {
-      widget.userInfo.smokingHabitId = _smokingHabits[provider.selectedSmokingIndex!].id;
-      widget.userInfo.drinkingHabitId = _drinkingHabits[provider.selectedDrinkingIndex!].id;
+      if (provider.selectedSmokingIndex! < _smokingHabits.length && provider.selectedDrinkingIndex! < _drinkingHabits.length) {
+        final selectedSmokingHabitId = _smokingHabits[provider.selectedSmokingIndex!].id;
+        final selectedDrinkingHabitId = _drinkingHabits[provider.selectedDrinkingIndex!].id;
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RegisterLifeStyle2(userInfo: widget.userInfo),
-        ),
-      );
+        if (selectedSmokingHabitId != null && selectedDrinkingHabitId != null) {
+          widget.userInfo.smokingHabitId = selectedSmokingHabitId;
+          widget.userInfo.drinkingHabitId = selectedDrinkingHabitId;
+
+          // Debug log to check values
+          log('Selected Smoking Habit ID: $selectedSmokingHabitId');
+          log('Selected Drinking Habit ID: $selectedDrinkingHabitId');
+          log('User Info before navigation: ${widget.userInfo}');
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RegisterLifeStyle2(userInfo: widget.userInfo),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Invalid selection')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invalid selection')),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please select both smoking and drinking habits')),
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

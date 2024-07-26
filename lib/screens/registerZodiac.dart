@@ -8,7 +8,6 @@ import 'package:lovigoapp/providers/habit_provider.dart';
 import '../styles.dart';
 import 'package:lovigoapp/modules/zodiac_module.dart';
 import 'package:lovigoapp/modules/userInfo.dart';
-import 'package:lovigoapp/services/api_service.dart';
 import 'package:lovigoapp/screens/registerExtraInfo.dart';
 
 class RegisterZodiac extends StatefulWidget {
@@ -49,27 +48,36 @@ class _RegisterZodiacState extends State<RegisterZodiac> {
   void _onProceed() {
     final provider = Provider.of<HabitProvider>(context, listen: false);
 
-    if (provider.selectedZodiacIndex != null) {
+    if (provider.selectedZodiacIndex != null && provider.selectedZodiacIndex! < _zodiacSigns.length) {
       final selectedZodiacId = _zodiacSigns[provider.selectedZodiacIndex!].id;
 
-      // Debug log to check values
-      log('Zodiac ID: $selectedZodiacId');
+      if (selectedZodiacId != null) {
+        // Debug log to check values
+        log('Selected Zodiac ID: $selectedZodiacId');
 
+        widget.userInfo.zodiacId = selectedZodiacId;
 
-      widget.userInfo.zodiacId = selectedZodiacId;
+        // Log UserInfo after setting Zodiac ID
+        log('User Info after setting Zodiac ID: ${widget.userInfo.zodiacId}');
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => RegisterExtraInfo(userInfo: widget.userInfo),
-        ),
-      );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RegisterExtraInfo(userInfo: widget.userInfo),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invalid Zodiac ID')),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select a zodiac sign')),
+        SnackBar(content: Text('Please select a valid zodiac sign')),
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +145,7 @@ class _RegisterZodiacState extends State<RegisterZodiac> {
                     SizedBox(height: 40),
                     InkWell(
                       onTap: () {
-                        _selectDate(context);
+                    //    _selectDate(context);
                       },
                       child: IgnorePointer(
                         child: TextFormField(
@@ -190,7 +198,7 @@ class _RegisterZodiacState extends State<RegisterZodiac> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+ /* Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
@@ -204,4 +212,6 @@ class _RegisterZodiacState extends State<RegisterZodiac> {
       });
     }
   }
+
+  */
 }

@@ -35,12 +35,12 @@ class ApiService {
         'relationship_type_id': relationshipTypeId,
         'smoking_habit_id': smokingHabitId,
         'drinking_habit_id': drinkingHabitId,
-        'workout_habit_id': workoutHabitId,
+        'workout_routine_id': workoutHabitId,
         'pet_ownership_id': petOwnershipId,
         'zodiac_id': zodiacId,
-        'social_media_use_id': socialMediaUseId,
-        'education_id': educationId,
-        'dietary_preference_id': dietaryPreferenceId,
+        'social_media_usage_id': socialMediaUseId,
+        'education_level_id': educationId,
+        'dietary_preferance_id': dietaryPreferenceId,
         'sleeping_routine_id': sleepingRoutineId,
         'family_plan_id': familyPlanId,
         'communication_style_id': communicationStyleId,
@@ -48,7 +48,7 @@ class ApiService {
 
       print('Request Body: $body');
 
-      final response = await http.post(
+      var response = await http.post(
         Uri.parse(baseUrl),
         headers: {
           'Content-Type': 'application/json',
@@ -61,35 +61,50 @@ class ApiService {
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        return responseData['data']['id'];
+        final userId = responseData['data']['id'];
+        if (userId != null) {
+          return userId;
+        } else {
+          throw Exception('User ID not found in the response');
+        }
       } else if (response.statusCode == 302) {
-
         final redirectUrl = response.headers['location'];
-        if (redirectUrl != null) {
+        if (redirectUrl != null && redirectUrl.isNotEmpty) {
+          final validUrl = Uri.parse(redirectUrl);
+          if (validUrl.isAbsolute) {
+            response = await http.post(
+              validUrl,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: body,
+            );
 
-          final redirectedResponse = await http.post(
-            Uri.parse(redirectUrl),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: body,
-          );
+            print('Redirected Response Status: ${response.statusCode}');
+            print('Redirected Response Body: ${response.body}');
 
-          print('Redirected Response Status: ${redirectedResponse.statusCode}');
-          print('Redirected Response Body: ${redirectedResponse.body}');
-
-          if (redirectedResponse.statusCode == 201 || redirectedResponse.statusCode == 200) {
-            final responseData = jsonDecode(redirectedResponse.body);
-            return responseData['data']['id'];
+            if (response.statusCode == 201 || response.statusCode == 200) {
+              final responseData = jsonDecode(response.body);
+              final userId = responseData['data']['id'];
+              if (userId != null) {
+                return userId;
+              } else {
+                throw Exception('User ID not found in the redirected response');
+              }
+            } else {
+              throw Exception('Failed to create user after redirect. Status: ${response.statusCode}, Body: ${response.body}');
+            }
           } else {
-            throw Exception('Failed to create user after redirect');
+            throw Exception('Invalid redirect URL: $redirectUrl');
           }
         } else {
           throw Exception('No redirect URL found');
         }
+      } else if (response.statusCode == 404) {
+        throw Exception('Endpoint not found: ${response.request?.url}');
       } else {
         print('Failed Response: ${response.body}');
-        throw Exception('Failed to create user');
+        throw Exception('Failed to create user. Status: ${response.statusCode}, Body: ${response.body}');
       }
     } catch (e) {
       print('Exception caught: $e');

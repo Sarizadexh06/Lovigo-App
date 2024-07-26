@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 class HabitProvider extends ChangeNotifier {
   int? _selectedSmokingIndex;
- int? _selectedDrinkingIndex;
-   int? _selectedWorkoutIndex;
+  int? _selectedDrinkingIndex;
+  int? _selectedWorkoutIndex;
   int? _selectedPetIndex;
   int? _selectedZodiacIndex;
-   int? _selectedSocialMediaUseIndex;
+  int? _selectedSocialMediaUseIndex;
   int? _selectedEducationIndex;
   int? _selectedDietaryPreferenceIndex;
   int? _selectedSleepingRoutineIndex;

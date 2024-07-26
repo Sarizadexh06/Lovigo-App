@@ -64,6 +64,29 @@ class _RegisterHealthState extends State<RegisterHealth> {
     }
   }
 
+  void _onProceed() {
+    final provider = Provider.of<HabitProvider>(context, listen: false);
+
+    // Seçilen değerleri UserInfo nesnesine ekleyin
+    widget.userInfo.dietaryPreferenceId = (provider.selectedDietaryPreferenceIndex != null
+        ? dietaryPreferences[provider.selectedDietaryPreferenceIndex!].id
+        : null)!;
+    widget.userInfo.sleepingRoutineId = (provider.selectedSleepingRoutineIndex != null
+        ? sleepingRoutines[provider.selectedSleepingRoutineIndex!].id
+        : null)!;
+
+    // Bilgilerin doğru şekilde eklendiğini kontrol etmek için log ekleyelim
+    print('UserInfo dietaryPreferenceId: ${widget.userInfo.dietaryPreferenceId}');
+    print('UserInfo sleepingRoutineId: ${widget.userInfo.sleepingRoutineId}');
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RegisterFamilyPlans(userInfo: widget.userInfo),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,14 +124,7 @@ class _RegisterHealthState extends State<RegisterHealth> {
                   height: 50,
                   width: 180,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RegisterFamilyPlans(userInfo: widget.userInfo),
-                        ),
-                      );
-                    },
+                    onPressed: _onProceed, // Butonun onPressed fonksiyonunu güncelledim
                     style: AppStyles.proceedButtonStyle,
                     child: Text('Proceed', style: AppStyles.textStyleForButton),
                   ),
