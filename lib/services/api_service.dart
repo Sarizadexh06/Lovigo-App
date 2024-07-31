@@ -40,7 +40,7 @@ class ApiService {
         'zodiac_id': zodiacId,
         'social_media_usage_id': socialMediaUseId,
         'education_level_id': educationId,
-        'dietary_preferance_id': dietaryPreferenceId,
+        'dietary_preference_id': dietaryPreferenceId,
         'sleeping_routine_id': sleepingRoutineId,
         'family_plan_id': familyPlanId,
         'communication_style_id': communicationStyleId,

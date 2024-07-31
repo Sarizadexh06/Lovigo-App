@@ -67,7 +67,7 @@ class _RegisterHealthState extends State<RegisterHealth> {
   void _onProceed() {
     final provider = Provider.of<HabitProvider>(context, listen: false);
 
-    // Seçilen değerleri UserInfo nesnesine ekleyin
+
     widget.userInfo.dietaryPreferenceId = (provider.selectedDietaryPreferenceIndex != null
         ? dietaryPreferences[provider.selectedDietaryPreferenceIndex!].id
         : null)!;

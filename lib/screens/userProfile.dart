@@ -2,6 +2,12 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lovigoapp/services/auth_service.dart';
+import 'package:lovigoapp/services/user_service.dart';
+import 'package:lovigoapp/modules/gender_module.dart';
+import 'package:lovigoapp/modules/relationship_type.dart';
+import 'package:lovigoapp/modules/zodiac_module.dart';
+import 'package:lovigoapp/modules/education_level.dart';
+import 'package:lovigoapp/modules/family_plan.dart';
 
 class UserProfile extends StatefulWidget {
   final String accessToken;
@@ -15,6 +21,7 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   final AuthService authService = AuthService();
+  final UserService userService = UserService();
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
   late TextEditingController _emailController;
@@ -30,6 +37,21 @@ class _UserProfileState extends State<UserProfile> {
   late TextEditingController _drinkingHabitController;
   late TextEditingController _smokingHabitController;
   bool _isLoading = true;
+  bool _isGenderLoading = true;
+  bool _isZodiacLoading = true;
+  bool _isRelationshipTypeLoading = true;
+  bool _isEducationLevelLoading = true;
+  bool _isFamilyPlanLoading = true;
+  List<Gender> _genders = [];
+  List<RelationshipType> _relationshipTypes = [];
+  List<Zodiac> _zodiacs = [];
+  List<EducationLevel> _educationLevels = [];
+  List<FamilyPlan> _familyPlans = [];
+  Gender? _selectedGender;
+  RelationshipType? _selectedRelationshipType;
+  Zodiac? _selectedZodiac;
+  EducationLevel? _selectedEducationLevel;
+  FamilyPlan? _selectedFamilyPlan;
 
   @override
   void initState() {
@@ -48,11 +70,13 @@ class _UserProfileState extends State<UserProfile> {
     _petOwnershipController = TextEditingController();
     _drinkingHabitController = TextEditingController();
     _smokingHabitController = TextEditingController();
-    _loadUserInfo();
+    _loadData().then((_) {
+      _loadUserInfo();
+    });
   }
 
   Future<void> _loadUserInfo() async {
-    final userInfo = widget.userInfo['data'];  // 'data' anahtarını ekledik
+    final userInfo = widget.userInfo['data'];
     if (userInfo != null) {
       setState(() {
         _firstNameController.text = userInfo['first_name'] ?? '';
@@ -69,13 +93,62 @@ class _UserProfileState extends State<UserProfile> {
         _petOwnershipController.text = userInfo['pet_ownership']?['name'] ?? '';
         _drinkingHabitController.text = userInfo['drinking_habit']?['name'] ?? '';
         _smokingHabitController.text = userInfo['smoking_habit']?['name'] ?? '';
+
+        _selectedGender = _genders.firstWhere(
+              (gender) => gender.name == userInfo['gender']?['name'],
+          orElse: () => Gender(id: userInfo['gender']?['id'], name: userInfo['gender']?['name']),
+        );
+        _selectedRelationshipType = _relationshipTypes.firstWhere(
+              (type) => type.name == userInfo['relationship_type']?['name'],
+          orElse: () => RelationshipType(id: userInfo['relationship_type']?['id'], name: userInfo['relationship_type']?['name']),
+        );
+        _selectedZodiac = _zodiacs.firstWhere(
+              (zodiac) => zodiac.name == userInfo['zodiac']?['name'],
+          orElse: () => Zodiac(id: userInfo['zodiac']?['id'], name: userInfo['zodiac']?['name']),
+        );
+        _selectedEducationLevel = _educationLevels.firstWhere(
+              (educationLevel) => educationLevel.name == userInfo['education_level']?['name'],
+          orElse: () => EducationLevel(id: userInfo['education_level']?['id'], name: userInfo['education_level']?['name']),
+        );
+        _selectedFamilyPlan = _familyPlans.firstWhere(
+              (familyPlan) => familyPlan.name == userInfo['family_plan']?['name'],
+          orElse: () => FamilyPlan(id: userInfo['family_plan']?['id'], name: userInfo['family_plan']?['name']),
+        );
+
         _isLoading = false;
       });
     } else {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load user info.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load user info.')));
+    }
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final genders = await userService.fetchGenders();
+      final relationshipTypes = await userService.fetchRelationshipTypes();
+      final zodiacs = await userService.fetchZodiacs();
+      final educationLevels = await userService.fetchEducationLevels();
+      final familyPlans = await userService.fetchFamilyPlans();
+
+      setState(() {
+        _genders = genders;
+        _relationshipTypes = relationshipTypes;
+        _zodiacs = zodiacs;
+        _educationLevels = educationLevels;
+        _familyPlans = familyPlans;
+        _isGenderLoading = false;
+        _isRelationshipTypeLoading = false;
+        _isZodiacLoading = false;
+        _isEducationLevelLoading = false;
+        _isFamilyPlanLoading = false;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load data')));
     }
   }
 
@@ -96,11 +169,16 @@ class _UserProfileState extends State<UserProfile> {
       'smoking_habit': {'name': _smokingHabitController.text},
     };
 
-    final success = await authService.updateUserInfo(widget.accessToken, updatedData);
+    final success = await authService.updateUserInfo(widget.accessToken,
+        updatedData);
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User information updated successfully.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('User information updated successfully.')),
+      );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update user information.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update user information.')),
+      );
     }
   }
 
@@ -154,20 +232,85 @@ class _UserProfileState extends State<UserProfile> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  _buildTextField('First Name', _firstNameController),
-                  _buildTextField('Last Name', _lastNameController),
-                  _buildTextField('Email', _emailController),
-                  _buildTextField('Phone', _phoneController),
-                  _buildTextField('Bio', _bioController),
-                  _buildTextField('Gender', _genderController),
-                  _buildTextField('Relationship Type', _relationshipTypeController),
-                  _buildTextField('Zodiac', _zodiacController),
-                  _buildTextField('Education Level', _educationLevelController),
-                  _buildTextField('Family Plan', _familyPlanController),
-                  _buildTextField('Communication Style', _communicationStyleController),
-                  _buildTextField('Pet Ownership', _petOwnershipController),
-                  _buildTextField('Drinking Habit', _drinkingHabitController),
-                  _buildTextField('Smoking Habit', _smokingHabitController),
+                  _buildExpansionTile('First Name', _firstNameController),
+                  _buildExpansionTile('Last Name', _lastNameController),
+                  _buildExpansionTile('Email', _emailController),
+                  _buildExpansionTile('Phone', _phoneController),
+                  _buildExpansionTile('Bio', _bioController),
+                  buildSelectableExpansionTile<Gender>(
+                    label: 'Gender',
+                    controller: _genderController,
+                    isLoading: _isGenderLoading,
+                    items: _genders,
+                    selectedItem: _selectedGender,
+                    getItemName: (gender) => gender.name,
+                    onSelect: (gender) {
+                      setState(() {
+                        _selectedGender = gender;
+                        _genderController.text = gender.name;
+                      });
+                    },
+                  ),
+                  buildSelectableExpansionTile<RelationshipType>(
+                    label: 'Relationship Type',
+                    controller: _relationshipTypeController,
+                    isLoading: _isRelationshipTypeLoading,
+                    items: _relationshipTypes,
+                    selectedItem: _selectedRelationshipType,
+                    getItemName: (type) => type.name,
+                    onSelect: (type) {
+                      setState(() {
+                        _selectedRelationshipType = type;
+                        _relationshipTypeController.text = type.name;
+                      });
+                    },
+                  ),
+                  buildSelectableExpansionTile<Zodiac>(
+                    label: 'Zodiac',
+                    controller: _zodiacController,
+                    isLoading: _isZodiacLoading,
+                    items: _zodiacs,
+                    selectedItem: _selectedZodiac,
+                    getItemName: (zodiac) => zodiac.name,
+                    onSelect: (zodiac) {
+                      setState(() {
+                        _selectedZodiac = zodiac;
+                        _zodiacController.text = zodiac.name;
+                      });
+                    },
+                  ),
+                  buildSelectableExpansionTile<EducationLevel>(
+                    label: 'Education Level',
+                    controller: _educationLevelController,
+                    isLoading: _isEducationLevelLoading,
+                    items: _educationLevels,
+                    selectedItem: _selectedEducationLevel,
+                    getItemName: (educationLevel) => educationLevel.name,
+                    onSelect: (educationLevel) {
+                      setState(() {
+                        _selectedEducationLevel = educationLevel;
+                        _educationLevelController.text = educationLevel.name;
+                      });
+                    },
+                  ),
+                  buildSelectableExpansionTile<FamilyPlan>(
+                    label: 'Family Plans',
+                    controller: _familyPlanController,
+                    isLoading: _isFamilyPlanLoading,
+                    items: _familyPlans,
+                    selectedItem: _selectedFamilyPlan,
+                    getItemName: (familyPlan) => familyPlan.name,
+                    onSelect: (familyPlan) {
+                      setState(() {
+                        _selectedFamilyPlan = familyPlan;
+                        _familyPlanController.text = familyPlan.name;
+                      });
+                    },
+                  ),
+                  _buildExpansionTile('Communication Style', _communicationStyleController),
+                  _buildExpansionTile('Pet Ownership', _petOwnershipController),
+                  _buildExpansionTile('Drinking Habit', _drinkingHabitController),
+                  _buildExpansionTile('Smoking Habit', _smokingHabitController),
                   const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: _updateUserInfo,
@@ -182,15 +325,60 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(),
-        ),
+  Widget _buildExpansionTile(String label, TextEditingController controller) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: ExpansionTile(
+        title: Text(label),
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                labelText: label,
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildSelectableExpansionTile<T>({
+    required String label,
+    required TextEditingController controller,
+    required bool isLoading,
+    required List<T> items,
+    required String Function(T) getItemName,
+    required void Function(T) onSelect,
+    T? selectedItem, // selectedItem parametresi eklendi
+  }) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: ExpansionTile(
+        title: Text(label),
+        children: [
+          isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Column(
+            children: items.map((item) {
+              return ListTile(
+                title: Text(getItemName(item)),
+                selected: selectedItem != null && selectedItem == item,
+                selectedTileColor: Colors.grey[300], // Daha koyu renk
+                selectedColor: Colors.black, // Seçili metin rengi
+                onTap: () {
+                  setState(() {
+                    controller.text = getItemName(item);
+                    onSelect(item);
+                  });
+                },
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }

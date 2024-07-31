@@ -51,7 +51,7 @@ class _UserHomeState extends State<UserHome> {
               child: TCard(
                 cards: demoCards,
                 size: Size(MediaQuery.of(context).size.width * 0.9,
-                    MediaQuery.of(context).size.height * 0.7),
+                    MediaQuery.of(context).size.height * 0.9),
                 onForward: (index, info) {
                   setState(() {
                     if (info.direction == SwipDirection.Right) {

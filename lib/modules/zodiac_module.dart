@@ -1,17 +1,17 @@
 class Zodiac {
-  Zodiac({
-    required this.data,
-  });
+  final int id;
+  final String name;
 
-  final List<Datum> data;
+  Zodiac({required this.id, required this.name});
 
-  factory Zodiac.fromJson(Map<String, dynamic> json){
+  factory Zodiac.fromJson(Map<String, dynamic> json) {
     return Zodiac(
-      data: json["data"] == null ? [] : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+      id: json['id'],
+      name: json['name'],
     );
   }
-
 }
+
 
 class Datum {
   Datum({
