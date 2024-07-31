@@ -132,10 +132,10 @@ class _RegisterFamilyPlansState extends State<RegisterFamilyPlans> {
         workoutHabitId: widget.userInfo.workoutHabitId,
         petOwnershipId: widget.userInfo.petOwnershipId,
         zodiacId: provider.selectedZodiacIndex! + 1,
-        socialMediaUseId: provider.selectedSocialMediaUseIndex!,
+        socialMediaUseId: provider.selectedSocialMediaUseIndex!+1,
         educationId: provider.selectedEducationIndex! + 1,
-        dietaryPreferenceId: provider.selectedDietaryPreferenceIndex!,
-        sleepingRoutineId: provider.selectedSleepingRoutineIndex!,
+        dietaryPreferenceId: provider.selectedDietaryPreferenceIndex!+1,
+        sleepingRoutineId: provider.selectedSleepingRoutineIndex!+1,
         familyPlanId: provider.selectedFamilyPlanIndex! + 1,
         communicationStyleId: provider.selectedCommunicationStyleIndex! + 1,
       );

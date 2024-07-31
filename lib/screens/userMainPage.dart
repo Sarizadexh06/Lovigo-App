@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:lovigoapp/screens/userHome.dart';
 import 'package:lovigoapp/screens/userProfile.dart';
-import 'package:tcard/tcard.dart';
-import 'userHome.dart';
 import 'package:lovigoapp/styles.dart';
 
 class UserMainPage extends StatefulWidget {
-  const UserMainPage({super.key});
+  final String accessToken;
+  final Map<String, dynamic> userInfo;
+
+  UserMainPage({required this.accessToken, required this.userInfo});
 
   @override
-  State<UserMainPage> createState() => _UserProfileState();
+  State<UserMainPage> createState() => _UserMainPageState();
 }
 
-class _UserProfileState extends State<UserMainPage> {
+class _UserMainPageState extends State<UserMainPage> {
   int index = 0;
 
   @override
@@ -29,7 +31,12 @@ class _UserProfileState extends State<UserMainPage> {
                 children: [
                   Center(child: UserHome()),
                   Center(child: Text('Page 2 Content')),
-                  Center(child: UserProfile(),)
+                  Center(
+                    child: UserProfile(
+                      accessToken: widget.accessToken,
+                      userInfo: widget.userInfo,
+                    ),
+                  ),
                 ],
               ),
             ),
