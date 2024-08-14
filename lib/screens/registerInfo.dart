@@ -112,9 +112,9 @@ class _RegisterInfoState extends State<RegisterInfo> {
       email: _emailController.text,
       phone: _phoneController.text,
       password: _passwordController.text,
-      genderId: 0, // Varsayılan değerler atandı
-      relationshipTypeId: 0, // Varsayılan değerler atandı
-      smokingHabitId: 0, // Varsayılan değerler atandı
+      genderId: 0,
+      relationshipTypeId: 0,
+      smokingHabitId: 0,
       drinkingHabitId: 0,
       workoutHabitId: 0,
       petOwnershipId: 0,

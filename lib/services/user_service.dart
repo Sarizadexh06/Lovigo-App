@@ -1,9 +1,13 @@
 import 'package:http/http.dart' as http;
+import 'package:lovigoapp/modules/communication_style.dart';
+import 'package:lovigoapp/modules/drinking_habit.dart';
 import 'dart:convert';
 import 'package:lovigoapp/modules/education_level.dart';
 import 'package:lovigoapp/modules/family_plan.dart';
 import 'package:lovigoapp/modules/gender_module.dart';
+import 'package:lovigoapp/modules/pet_ownership.dart';
 import 'package:lovigoapp/modules/relationship_type.dart';
+import 'package:lovigoapp/modules/smoking_habit.dart';
 import 'package:lovigoapp/modules/zodiac_module.dart';
 
 class UserService {
@@ -56,4 +60,42 @@ class UserService {
       throw Exception('Failed to load family plans');
     }
   }
+  Future<List<CommunicationStyle>> fetchCommunicationStyles() async {
+    final response = await http.get(Uri.parse('http://lovigo.net/communication-styles'));
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body)['data'];
+      return jsonResponse.map((communicationStyle) => CommunicationStyle.fromJson(communicationStyle)).toList();
+    } else {
+      throw Exception('Failed to load communication styles');
+    }
+  }
+  Future<List<PetOwnership>> fetchPetOwnerships() async {
+    final response = await http.get(Uri.parse('http://lovigo.net/pet-ownerships'));
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body)['data'];
+      return jsonResponse.map((petOwnership) => PetOwnership.fromJson(petOwnership)).toList();
+    } else {
+      throw Exception('Failed to load pet ownerships');
+    }
+  }
+
+  Future<List<DrinkingHabits>> fetchDrinkingHabits() async {
+    final response = await http.get(Uri.parse('http://lovigo.net/drinking-habits'));
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body)['data'];
+      return jsonResponse.map((drinkingHabit) => DrinkingHabits.fromJson(drinkingHabit)).toList();
+    } else {
+      throw Exception('Failed to load drinking habits');
+    }
+  }
+  Future<List<SmokingHabit>> fetchSmokingHabits() async {
+    final response = await http.get(Uri.parse('http://lovigo.net/smoking-habits'));
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body)['data'];
+      return jsonResponse.map((smokingHabit) => SmokingHabit.fromJson(smokingHabit)).toList();
+    } else {
+      throw Exception('Failed to load smoking habits');
+    }
+  }
+
 }

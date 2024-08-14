@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:lovigoapp/modules/gender_module.dart';
 import 'package:lovigoapp/modules/userInfo.dart';
@@ -8,6 +7,7 @@ import 'package:lovigoapp/services/api_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lovigoapp/styles.dart';
+
 
 class RegisterGender extends StatefulWidget {
   final UserInfo userInfo;

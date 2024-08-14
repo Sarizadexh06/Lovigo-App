@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
 class AuthService {
+
   final String baseUrl = "http://lovigo.net/oauth/token";
   final String clientId = "9ca71a69-989a-4b81-b8ed-30c96df799e7";
   final String clientSecret = "AJ8mbgnqifvYAU02PH4SmtSkM3T66Ftmcn8205fp";
@@ -65,10 +66,17 @@ class AuthService {
       return null;
     }
   }
+  final String baseUrlUpdate = "http://lovigo.net/api/v1";
 
   Future<bool> updateUserInfo(String accessToken, Map<String, dynamic> updatedData) async {
+    final jwt = JWT.decode(accessToken);
+    final userId = jwt.payload['sub'];
+
+    final url = Uri.parse('$baseUrlUpdate/users/$userId');
+    print('Sending update request to $url with data: ${json.encode(updatedData)}');
+
     final response = await http.put(
-      Uri.parse('http://lovigo.net/api/v1/users/me'), // Kullanıcı bilgilerini güncellemek için 'me' endpointini kullanın
+      url,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $accessToken',
@@ -76,10 +84,9 @@ class AuthService {
       body: json.encode(updatedData),
     );
 
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      return false;
-    }
+    print('Response Body: ${response.body}');
+
+    return response.statusCode == 200;
   }
+
 }

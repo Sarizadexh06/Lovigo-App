@@ -119,7 +119,9 @@ class AppStyles {
 class CardWidget {
   final String imageUrl;
   final String name;
-  CardWidget(this.imageUrl, this.name);
+  final ScrollController scrollController;
+
+  CardWidget(this.imageUrl, this.name,this.scrollController);
 
   Widget buildCard() {
     return Container(
@@ -147,6 +149,20 @@ class CardWidget {
                   style: AppStyles.registerPageTitleStyle,
                 ),
               ),
+              Positioned(
+                bottom: 13,
+                  right: 10,
+                  child: FloatingActionButton(
+                onPressed: (){
+                  scrollController.animateTo(
+                      scrollController.position.maxScrollExtent,
+                      duration: Duration(seconds: 1),
+                  curve: Curves.easeInOut,
+                  );
+                },
+                child: Icon(Icons.arrow_downward_rounded),
+              ) )
+
     ]
     ),
 

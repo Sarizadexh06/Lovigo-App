@@ -31,7 +31,7 @@ class _RegisterHealthState extends State<RegisterHealth> {
   }
 
   Future<void> _fetchDietaryPreferences() async {
-    final response = await http.get(Uri.parse('http://lovigo.net/dietary-preferances'));
+    final response = await http.get(Uri.parse('http://lovigo.net/dietary-preferences'));
     if (response.statusCode == 200) {
       List jsonResponse = json.decode(response.body)['data'];
       setState(() {
@@ -75,7 +75,7 @@ class _RegisterHealthState extends State<RegisterHealth> {
         ? sleepingRoutines[provider.selectedSleepingRoutineIndex!].id
         : null)!;
 
-    // Bilgilerin doğru şekilde eklendiğini kontrol etmek için log ekleyelim
+
     print('UserInfo dietaryPreferenceId: ${widget.userInfo.dietaryPreferenceId}');
     print('UserInfo sleepingRoutineId: ${widget.userInfo.sleepingRoutineId}');
 

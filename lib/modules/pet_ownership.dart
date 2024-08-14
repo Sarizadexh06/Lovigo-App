@@ -1,16 +1,17 @@
 class PetOwnership {
-  PetOwnership({
-    required this.data,
-  });
+  final int id;
+  final String name;
 
-  final List<Datum> data;
+  PetOwnership({required this.id, required this.name});
 
   factory PetOwnership.fromJson(Map<String, dynamic> json) {
     return PetOwnership(
-      data: json["data"] == null ? [] : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+      id: json['id'],
+      name: json['name'],
     );
   }
 }
+
 
 class Datum {
   Datum({

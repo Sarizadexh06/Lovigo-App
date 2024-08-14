@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:lovigoapp/modules/smoking_habit.dart';
 import 'package:lovigoapp/services/auth_service.dart';
 import 'package:lovigoapp/services/user_service.dart';
 import 'package:lovigoapp/modules/gender_module.dart';
@@ -8,6 +10,9 @@ import 'package:lovigoapp/modules/relationship_type.dart';
 import 'package:lovigoapp/modules/zodiac_module.dart';
 import 'package:lovigoapp/modules/education_level.dart';
 import 'package:lovigoapp/modules/family_plan.dart';
+import 'package:lovigoapp/modules/communication_style.dart';
+import 'package:lovigoapp/modules/pet_ownership.dart';
+import 'package:lovigoapp/modules/drinking_habit.dart';
 
 class UserProfile extends StatefulWidget {
   final String accessToken;
@@ -20,6 +25,7 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
+  late Map<String, dynamic> userInfo;
   final AuthService authService = AuthService();
   final UserService userService = UserService();
   late TextEditingController _firstNameController;
@@ -42,20 +48,33 @@ class _UserProfileState extends State<UserProfile> {
   bool _isRelationshipTypeLoading = true;
   bool _isEducationLevelLoading = true;
   bool _isFamilyPlanLoading = true;
+  bool _isCommunicationStyleLoading = true;
+  bool _isPetOwnershipLoading = true;
+  bool _isDrinkingHabitLoading = true;
+  bool _isSmokingHabitLoading = true;
   List<Gender> _genders = [];
   List<RelationshipType> _relationshipTypes = [];
   List<Zodiac> _zodiacs = [];
   List<EducationLevel> _educationLevels = [];
   List<FamilyPlan> _familyPlans = [];
+  List<CommunicationStyle> _communicationStyles = [];
+  List<PetOwnership> _petOwnerships = [];
+  List<DrinkingHabits> _drinkingHabits = [];
+  List<SmokingHabit> _smokingHabits = [];
   Gender? _selectedGender;
   RelationshipType? _selectedRelationshipType;
   Zodiac? _selectedZodiac;
   EducationLevel? _selectedEducationLevel;
   FamilyPlan? _selectedFamilyPlan;
+  CommunicationStyle? _selectedCommunicationStyle;
+  PetOwnership? _selectedPetOwnership;
+  DrinkingHabits? _selectedDrinkingHabit;
+  SmokingHabit? _selectedSmokingHabit;
 
   @override
   void initState() {
     super.initState();
+    userInfo = widget.userInfo;
     _firstNameController = TextEditingController();
     _lastNameController = TextEditingController();
     _emailController = TextEditingController();
@@ -114,6 +133,31 @@ class _UserProfileState extends State<UserProfile> {
               (familyPlan) => familyPlan.name == userInfo['family_plan']?['name'],
           orElse: () => FamilyPlan(id: userInfo['family_plan']?['id'], name: userInfo['family_plan']?['name']),
         );
+        _selectedCommunicationStyle = _communicationStyles.firstWhere(
+              (communicationStyle) => communicationStyle.name == userInfo['communication_style']?['name'],
+          orElse: () => CommunicationStyle(id: userInfo['communication_style']?['id'], name: userInfo['communication_style']?['name']),
+        );
+        _selectedPetOwnership = _petOwnerships.firstWhere(
+              (petOwnership) => petOwnership.name == userInfo['pet_ownership']?['name'],
+          orElse: () => PetOwnership(
+            id: userInfo['pet_ownership']?['id'] ?? -1,
+            name: userInfo['pet_ownership']?['name'] ?? '',
+          ),
+        );
+        _selectedDrinkingHabit = _drinkingHabits.firstWhere(
+              (drinkingHabit) => drinkingHabit.name == userInfo['drinking_habit']?['name'],
+          orElse: () => DrinkingHabits(
+            id: userInfo['drinking_habit']?['id'] ?? -1,
+            name: userInfo['drinking_habit']?['name'] ?? '',
+          ),
+        );
+        _selectedSmokingHabit = _smokingHabits.firstWhere(
+              (smokingHabit) => smokingHabit.name == userInfo['smoking_habit']?['name'],
+          orElse: () => SmokingHabit(
+            id: userInfo['smoking_habit']?['id'] ?? -1,
+            name: userInfo['smoking_habit']?['name'] ?? '',
+          ),
+        );
 
         _isLoading = false;
       });
@@ -122,7 +166,8 @@ class _UserProfileState extends State<UserProfile> {
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load user info.')));
+        SnackBar(content: Text('Failed to load user info.')),
+      );
     }
   }
 
@@ -133,6 +178,10 @@ class _UserProfileState extends State<UserProfile> {
       final zodiacs = await userService.fetchZodiacs();
       final educationLevels = await userService.fetchEducationLevels();
       final familyPlans = await userService.fetchFamilyPlans();
+      final communicationStyles = await userService.fetchCommunicationStyles();
+      final petOwnerships = await userService.fetchPetOwnerships();
+      final drinkingHabits = await userService.fetchDrinkingHabits();
+      final smokingHabits = await userService.fetchSmokingHabits();
 
       setState(() {
         _genders = genders;
@@ -140,47 +189,137 @@ class _UserProfileState extends State<UserProfile> {
         _zodiacs = zodiacs;
         _educationLevels = educationLevels;
         _familyPlans = familyPlans;
+        _communicationStyles = communicationStyles;
+        _petOwnerships = petOwnerships;
+        _drinkingHabits = drinkingHabits;
+        _smokingHabits = smokingHabits;
         _isGenderLoading = false;
         _isRelationshipTypeLoading = false;
         _isZodiacLoading = false;
         _isEducationLevelLoading = false;
         _isFamilyPlanLoading = false;
+        _isCommunicationStyleLoading = false;
+        _isPetOwnershipLoading = false;
+        _isDrinkingHabitLoading = false;
+        _isSmokingHabitLoading = false;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load data')));
+        SnackBar(content: Text('Failed to load data')),
+      );
     }
   }
-
   Future<void> _updateUserInfo() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     final updatedData = {
       'first_name': _firstNameController.text,
       'last_name': _lastNameController.text,
       'email': _emailController.text,
       'phone': _phoneController.text,
-      'gender': {'name': _genderController.text},
-      'relationship_type': {'name': _relationshipTypeController.text},
-      'zodiac': {'name': _zodiacController.text},
-      'education_level': {'name': _educationLevelController.text},
-      'family_plan': {'name': _familyPlanController.text},
-      'communication_style': {'name': _communicationStyleController.text},
-      'pet_ownership': {'name': _petOwnershipController.text},
-      'drinking_habit': {'name': _drinkingHabitController.text},
-      'smoking_habit': {'name': _smokingHabitController.text},
+      'bio': _bioController.text,
+      'gender_id': _selectedGender?.id,
+      'relationship_type_id': _selectedRelationshipType?.id,
+      'zodiac_id': _selectedZodiac?.id,
+      'education_level_id': _selectedEducationLevel?.id,
+      'family_plan_id': _selectedFamilyPlan?.id,
+      'communication_style_id': _selectedCommunicationStyle?.id,
+      'pet_ownership_id': _selectedPetOwnership?.id,
+      'drinking_habit_id': _selectedDrinkingHabit?.id,
+      'smoking_habit_id': _selectedSmokingHabit?.id,
     };
 
-    final success = await authService.updateUserInfo(widget.accessToken,
-        updatedData);
-    if (success) {
+    print('Sending update request to http://lovigo.net/api/v1/users/1 with data: ${jsonEncode(updatedData)}');
+
+    try {
+      final success = await authService.updateUserInfo(widget.accessToken, updatedData);
+
+      if (success) {
+        setState(() {
+          userInfo = updatedData;
+
+          _firstNameController.text = userInfo['first_name'] ?? '';
+          _lastNameController.text = userInfo['last_name'] ?? '';
+          _emailController.text = userInfo['email'] ?? '';
+          _phoneController.text = userInfo['phone'] ?? '';
+          _bioController.text = userInfo['bio'] ?? '';
+
+          _selectedGender = userInfo['gender_id'] != null ? Gender(
+            id: userInfo['gender_id'],
+            name: '', // Assign name if necessary
+          ) : null;
+
+          _selectedRelationshipType = userInfo['relationship_type_id'] != null ? RelationshipType(
+            id: userInfo['relationship_type_id'],
+            name: '', // Assign name if necessary
+          ) : null;
+
+          _selectedZodiac = userInfo['zodiac_id'] != null ? Zodiac(
+            id: userInfo['zodiac_id'],
+            name: '', // Assign name if necessary
+          ) : null;
+
+          _selectedEducationLevel = userInfo['education_level_id'] != null ? EducationLevel(
+            id: userInfo['education_level_id'],
+            name: '', // Assign name if necessary
+          ) : null;
+
+          _selectedFamilyPlan = userInfo['family_plan_id'] != null ? FamilyPlan(
+            id: userInfo['family_plan_id'],
+            name: '', // Assign name if necessary
+          ) : null;
+
+          _selectedCommunicationStyle = userInfo['communication_style_id'] != null ? CommunicationStyle(
+            id: userInfo['communication_style_id'],
+            name: '', // Assign name if necessary
+          ) : null;
+
+          _selectedPetOwnership = userInfo['pet_ownership_id'] != null ? PetOwnership(
+            id: userInfo['pet_ownership_id'],
+            name: '', // Assign name if necessary
+          ) : null;
+
+          _selectedDrinkingHabit = userInfo['drinking_habit_id'] != null ? DrinkingHabits(
+            id: userInfo['drinking_habit_id'],
+            name: '', // Assign name if necessary
+          ) : null;
+
+          _selectedSmokingHabit = userInfo['smoking_habit_id'] != null ? SmokingHabit(
+            id: userInfo['smoking_habit_id'],
+            name: '', // Assign name if necessary
+          ) : null;
+
+          _genderController.text = _selectedGender?.name ?? '';
+          _relationshipTypeController.text = _selectedRelationshipType?.name ?? '';
+          _zodiacController.text = _selectedZodiac?.name ?? '';
+          _educationLevelController.text = _selectedEducationLevel?.name ?? '';
+          _familyPlanController.text = _selectedFamilyPlan?.name ?? '';
+          _communicationStyleController.text = _selectedCommunicationStyle?.name ?? '';
+          _petOwnershipController.text = _selectedPetOwnership?.name ?? '';
+          _drinkingHabitController.text = _selectedDrinkingHabit?.name ?? '';
+          _smokingHabitController.text = _selectedSmokingHabit?.name ?? '';
+        });
+
+        print('Update successful with data: ${jsonEncode(userInfo)}');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Initial update failed')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('User information updated successfully.')),
+        SnackBar(content: Text('An error occurred: $e')),
       );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update user information.')),
-      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -307,10 +446,62 @@ class _UserProfileState extends State<UserProfile> {
                       });
                     },
                   ),
-                  _buildExpansionTile('Communication Style', _communicationStyleController),
-                  _buildExpansionTile('Pet Ownership', _petOwnershipController),
-                  _buildExpansionTile('Drinking Habit', _drinkingHabitController),
-                  _buildExpansionTile('Smoking Habit', _smokingHabitController),
+                  buildSelectableExpansionTile<CommunicationStyle>(
+                    label: 'Communication Style',
+                    controller: _communicationStyleController,
+                    isLoading: _isCommunicationStyleLoading,
+                    items: _communicationStyles,
+                    selectedItem: _selectedCommunicationStyle,
+                    getItemName: (communicationStyle) => communicationStyle.name,
+                    onSelect: (communicationStyle) {
+                      setState(() {
+                        _selectedCommunicationStyle = communicationStyle;
+                        _communicationStyleController.text = communicationStyle.name;
+                      });
+                    },
+                  ),
+                  buildSelectableExpansionTile<PetOwnership>(
+                    label: 'Pet Ownership',
+                    controller: _petOwnershipController,
+                    isLoading: _isPetOwnershipLoading,
+                    items: _petOwnerships,
+                    selectedItem: _selectedPetOwnership,
+                    getItemName: (petOwnership) => petOwnership.name,
+                    onSelect: (petOwnership) {
+                      setState(() {
+                        _selectedPetOwnership = petOwnership;
+                        _petOwnershipController.text = petOwnership.name;
+                      });
+                    },
+                  ),
+                  buildSelectableExpansionTile<DrinkingHabits>(
+                    label: 'Drinking Habit',
+                    controller: _drinkingHabitController,
+                    isLoading: _isDrinkingHabitLoading,
+                    items: _drinkingHabits,
+                    selectedItem: _selectedDrinkingHabit,
+                    getItemName: (drinkingHabit) => drinkingHabit.name,
+                    onSelect: (drinkingHabit) {
+                      setState(() {
+                        _selectedDrinkingHabit = drinkingHabit;
+                        _drinkingHabitController.text = drinkingHabit.name;
+                      });
+                    },
+                  ),
+                  buildSelectableExpansionTile<SmokingHabit>(
+                    label: 'Smoking Habit',
+                    controller: _smokingHabitController,
+                    isLoading: _isSmokingHabitLoading,
+                    items: _smokingHabits,
+                    selectedItem: _selectedSmokingHabit,
+                    getItemName: (smokingHabit) => smokingHabit.name,
+                    onSelect: (smokingHabit) {
+                      setState(() {
+                        _selectedSmokingHabit = smokingHabit;
+                        _smokingHabitController.text = smokingHabit.name;
+                      });
+                    },
+                  ),
                   const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: _updateUserInfo,
@@ -353,7 +544,7 @@ class _UserProfileState extends State<UserProfile> {
     required List<T> items,
     required String Function(T) getItemName,
     required void Function(T) onSelect,
-    T? selectedItem, // selectedItem parametresi eklendi
+    T? selectedItem,
   }) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -367,8 +558,8 @@ class _UserProfileState extends State<UserProfile> {
               return ListTile(
                 title: Text(getItemName(item)),
                 selected: selectedItem != null && selectedItem == item,
-                selectedTileColor: Colors.grey[300], // Daha koyu renk
-                selectedColor: Colors.black, // Seçili metin rengi
+                selectedTileColor: Colors.grey[300],
+                selectedColor: Colors.black,
                 onTap: () {
                   setState(() {
                     controller.text = getItemName(item);
@@ -382,4 +573,6 @@ class _UserProfileState extends State<UserProfile> {
       ),
     );
   }
+
+
 }

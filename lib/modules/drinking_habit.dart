@@ -1,17 +1,17 @@
 class DrinkingHabits {
-  DrinkingHabits({
-    required this.data,
-  });
+  final int id;
+  final String name;
 
-  final List<Datum> data;
+  DrinkingHabits({required this.id, required this.name});
 
-  factory DrinkingHabits.fromJson(Map<String, dynamic> json){
+  factory DrinkingHabits.fromJson(Map<String, dynamic> json) {
     return DrinkingHabits(
-      data: json["data"] == null ? [] : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+      id: json['id'],
+      name: json['name'],
     );
   }
-
 }
+
 
 class Datum {
   Datum({
